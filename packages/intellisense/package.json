@@ -37,7 +37,7 @@
     "@types/css-tree": "^2.0.0",
     "@types/cssbeautify": "^0.3.2",
     "@types/showdown": "^2.0.0",
-    "typescript": "^4.8.4"
+    "typescript": "^5.5.3"
   },
   "peerDependencies": {
     "@twind/core": "^1.1.0",
