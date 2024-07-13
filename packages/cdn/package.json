@@ -39,7 +39,7 @@
     "typescript": "^5.5.3"
   },
   "peerDependencies": {
-    "typescript": "^4.8.4"
+    "typescript": "^5.5.3"
   },
   "peerDependenciesMeta": {
     "typescript": {
