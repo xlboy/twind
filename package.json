@@ -108,7 +108,8 @@
         "@jsenv/logger",
         "@jsenv/importmap"
       ]
-    }
+    },
+    "allowNonAppliedPatches": true
   },
   "prettier": {
     "printWidth": 100,
