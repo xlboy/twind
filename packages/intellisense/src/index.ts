@@ -11,12 +11,13 @@ import { matchSorter, type MatchSorterOptions } from 'match-sorter'
 import cssbeautify from 'cssbeautify'
 import QuickLRU from 'quick-lru'
 
-import type { Boundary } from './internal/types'
 import type {
   DocumentationAt,
   DocumentationForOptions,
   Intellisense,
   IntellisenseOptions,
+  LanguageHandler,
+  LanguageId,
   Suggestion,
 } from './types'
 
@@ -107,6 +108,13 @@ export function createIntellisense(
     maxSize: 1000,
     ...options.cache,
   })
+
+  const languageHandlers = {
+    html: () => import('./languages/html'),
+    typescriptreact: () => import('./languages/react'),
+    javascriptreact: () => import('./languages/react'),
+  } as Partial<Record<LanguageId, () => Promise<LanguageHandler>>>
+
   return {
     get theme() {
       return context.tw.theme
@@ -152,7 +160,7 @@ export function createIntellisense(
         if (prefix) {
           source = source
             .filter(({ type, value }) => type === 'variant' || value.startsWith(prefix))
-            .map((suggestion) =>
+            .map((suggestion, _, arr) =>
               suggestion.type === 'variant'
                 ? suggestion
                 : {
@@ -205,29 +213,26 @@ export function createIntellisense(
 
       // TODO: *react, svelte
 
+      const languageHandler = await languageHandlers[language]?.()
+      const defaultExtractBoundary: LanguageHandler['extractBoundary'] = (content, position) => {
+        const start =
+          Math.max(
+            content.lastIndexOf(' ', position),
+            content.lastIndexOf('\n', position),
+            content.lastIndexOf('\t', position),
+          ) + 1
+
+        let end = content.indexOf(' ', start)
+
+        if (end === -1) end = content.indexOf('\n', start)
+        if (end === -1) end = content.indexOf('\t', start)
+        if (end === -1) end = content.length
+
+        return { start, end, content: content.slice(start, end) }
+      }
       // TODO: autocomplete for theme(): https://github.com/tailwindlabs/tailwindcss-intellisense/blob/1f1c3fcd7978865aff06fa1f8616c6b6447c1fa1/packages/tailwindcss-language-server/src/language/cssServer.ts#L159
-      const { extractBoundary } =
-        language === 'html'
-          ? await import('./languages/html')
-          : {
-              extractBoundary: (content: string, position?: number): Boundary | null => {
-                const start =
-                  Math.max(
-                    content.lastIndexOf(' ', position),
-                    content.lastIndexOf('\n', position),
-                    content.lastIndexOf('\t', position),
-                  ) + 1
-
-                let end = content.indexOf(' ', start)
-
-                if (end === -1) end = content.indexOf('\n', start)
-                if (end === -1) end = content.indexOf('\t', start)
-                if (end === -1) end = content.length
-
-                return { start, end, content: content.slice(start, end) }
-              },
-            }
-
+      // @eslint-disable-next-line
+      const extractBoundary = languageHandler?.extractBoundary.bind(null) || defaultExtractBoundary
       const boundary = extractBoundary(content, position)
 
       if (!boundary) return null

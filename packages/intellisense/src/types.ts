@@ -1,6 +1,7 @@
 import type { BaseTheme, ExtractUserTheme, ThemeFunction, TwindConfig } from '@twind/core'
 
 import type { Numberify, RGBA } from '@ctrl/tinycolor'
+import type { Boundary, IntellisenseContext } from './internal/types'
 
 export type LanguageId =
   | (
@@ -16,6 +17,20 @@ export type LanguageId =
     )
   // eslint-disable-next-line @typescript-eslint/ban-types
   | (string & {})
+
+export interface LanguageHandler {
+  documentationAt(
+    content: string,
+    offset: number,
+    { isIgnored }: IntellisenseContext,
+  ): DocumentationAt | null
+  extractBoundary(content: string, position: number): Boundary | null
+  collectColors(content: string, { classes, isIgnored }: IntellisenseContext): ColorInformation[]
+  validate(
+    content: string,
+    { variants, classes, isIgnored, generateCSS }: IntellisenseContext,
+  ): Diagnostics[]
+}
 
 export interface Intellisense<Theme extends BaseTheme = BaseTheme> {
   readonly theme: ThemeFunction<ExtractUserTheme<Theme>>
