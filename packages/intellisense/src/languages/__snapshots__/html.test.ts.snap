@@ -1,0 +1,254 @@
+// Vitest Snapshot v1
+
+exports[`extractIntactBoundary > <html> attributes 1`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 21,
+    "start": 15,
+  },
+  "code": "<div class
+ = \\"✍🏻text-sm\\">;",
+  "index": 15,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 21,
+    "start": 15,
+  },
+  "code": "<div class
+ = \\"text-✍🏻sm\\">;",
+  "index": 20,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 3`] = `
+{
+  "boundary": {
+    "content": "text-sm ",
+    "end": 22,
+    "start": 15,
+  },
+  "code": "<div class
+ = 'text-sm ✍🏻'>;",
+  "index": 23,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 4`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 12,
+    "start": 12,
+  },
+  "code": "<div class=\\"✍🏻\\">",
+  "index": 12,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 5`] = `
+{
+  "boundary": null,
+  "code": "<div class=✍🏻\\"\\">",
+  "index": 11,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 6`] = `
+{
+  "boundary": null,
+  "code": "<div class=\\"\\"✍🏻>",
+  "index": 13,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 7`] = `
+{
+  "boundary": null,
+  "code": "<div class=✍🏻\\"text\\">",
+  "index": 11,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 8`] = `
+{
+  "boundary": {
+    "content": "bg-red",
+    "end": 19,
+    "start": 14,
+  },
+  "code": "<div class = '✍🏻bg-red'>",
+  "index": 14,
+}
+`;
+
+exports[`extractIntactBoundary > <html> attributes 9`] = `
+{
+  "boundary": null,
+  "code": "<div class = {'text-1✍🏻'}>",
+  "index": 21,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 1`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tw\`✍🏻text-sm\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tx\`text-✍🏻sm\`;",
+  "index": 8,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 3`] = `
+{
+  "boundary": null,
+  "code": "tx✍🏻\`text-sm\`;",
+  "index": 2,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 4`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 3,
+    "start": 3,
+  },
+  "code": "tx\`✍🏻\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 5`] = `
+{
+  "boundary": null,
+  "code": "tx\`\`✍🏻;",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 6`] = `
+{
+  "boundary": {
+    "content": "text-1 font-bold ",
+    "end": 19,
+    "start": 3,
+  },
+  "code": "tx\`text-1 font-bold ✍🏻\`;",
+  "index": 20,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 7`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 4,
+    "start": 4,
+  },
+  "code": "tw('✍🏻');",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 8`] = `
+{
+  "boundary": null,
+  "code": "tw(''✍🏻);",
+  "index": 5,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 9`] = `
+{
+  "boundary": {
+    "content": "text-red ",
+    "end": 12,
+    "start": 4,
+  },
+  "code": "tx('text-red ✍🏻');",
+  "index": 13,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 10`] = `
+{
+  "boundary": {
+    "content": "text-red 
+ bg-none ",
+    "end": 22,
+    "start": 4,
+  },
+  "code": "tx(\`text-red 
+ bg-none ✍🏻\`);",
+  "index": 23,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 11`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 26,
+    "start": 26,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 12`] = `
+{
+  "boundary": {
+    "content": " center",
+    "end": 32,
+    "start": 26,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻 center');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 13`] = `
+{
+  "boundary": {
+    "content": "red ",
+    "end": 48,
+    "start": 45,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red ✍🏻\\"]);",
+  "index": 49,
+}
+`;
+
+exports[`extractIntactBoundary > <script> function calls 14`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red\\"✍🏻]);",
+  "index": 49,
+}
+`;

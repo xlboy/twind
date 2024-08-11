@@ -11,12 +11,13 @@ import { matchSorter, type MatchSorterOptions } from 'match-sorter'
 import cssbeautify from 'cssbeautify'
 import QuickLRU from 'quick-lru'
 
-import type { Boundary } from './internal/types'
 import type {
   DocumentationAt,
   DocumentationForOptions,
   Intellisense,
   IntellisenseOptions,
+  LanguageHandler,
+  LanguageId,
   Suggestion,
 } from './types'
 
@@ -25,6 +26,7 @@ import { parse, type ParsedDevRule } from '@twind/core'
 import { createIntellisenseContext } from './internal/create-context'
 import { spacify } from './internal/spacify'
 import { compareSuggestions } from './internal/compare-suggestion'
+import { Boundary } from './internal/types'
 
 export * from './types'
 
@@ -107,6 +109,15 @@ export function createIntellisense(
     maxSize: 1000,
     ...options.cache,
   })
+
+  const languageHandlers = {
+    html: () => import('./languages/html'),
+    typescriptreact: () => import('./languages/jsx'),
+    javascriptreact: () => import('./languages/jsx'),
+    javascript: () => import('./languages/jsx'),
+    typescript: () => import('./languages/jsx'),
+  } as Partial<Record<LanguageId, () => Promise<LanguageHandler>>>
+
   return {
     get theme() {
       return context.tw.theme
@@ -152,7 +163,7 @@ export function createIntellisense(
         if (prefix) {
           source = source
             .filter(({ type, value }) => type === 'variant' || value.startsWith(prefix))
-            .map((suggestion) =>
+            .map((suggestion, _, arr) =>
               suggestion.type === 'variant'
                 ? suggestion
                 : {
@@ -205,36 +216,26 @@ export function createIntellisense(
 
       // TODO: *react, svelte
 
+      const languageHandler = await languageHandlers[language]?.()
+      if (!languageHandler) return null
+
       // TODO: autocomplete for theme(): https://github.com/tailwindlabs/tailwindcss-intellisense/blob/1f1c3fcd7978865aff06fa1f8616c6b6447c1fa1/packages/tailwindcss-language-server/src/language/cssServer.ts#L159
-      const { extractBoundary } =
-        language === 'html'
-          ? await import('./languages/html')
-          : {
-              extractBoundary: (content: string, position?: number): Boundary | null => {
-                const start =
-                  Math.max(
-                    content.lastIndexOf(' ', position),
-                    content.lastIndexOf('\n', position),
-                    content.lastIndexOf('\t', position),
-                  ) + 1
+      // ...
+      const preOffsetBoundary: Boundary | null = (() => {
+        const intactBoundary = languageHandler.extractIntactBoundary(content, position)
+        if (!intactBoundary) return null
+        return {
+          content: intactBoundary.content.slice(0, position - intactBoundary.start),
+          start: intactBoundary.start,
+          end: position,
+        }
+      })()
+      if (!preOffsetBoundary) return null
 
-                let end = content.indexOf(' ', start)
+      const isEmptyPosition =
+        !preOffsetBoundary.content || /[\s():/!-@]$/.test(preOffsetBoundary.content)
 
-                if (end === -1) end = content.indexOf('\n', start)
-                if (end === -1) end = content.indexOf('\t', start)
-                if (end === -1) end = content.length
-
-                return { start, end, content: content.slice(start, end) }
-              },
-            }
-
-      const boundary = extractBoundary(content, position)
-
-      if (!boundary) return null
-
-      const isEmptyPosition = !boundary.content || /[\s():/!-@]$/.test(boundary.content)
-
-      const parsed = parse(boundary.content + (isEmptyPosition ? '\uffff' : ''))
+      const parsed = parse(preOffsetBoundary.content + (isEmptyPosition ? '\uffff' : ''))
 
       const rule = parsed[parsed.length - 1] as ParsedDevRule | undefined
 
@@ -475,14 +476,10 @@ export function createIntellisense(
       return convert(result, format)
     },
     async documentationAt(content, offset, language) {
-      let result: DocumentationAt | null = null
+      const languageHandler = await languageHandlers[language]?.()
+      if (!languageHandler) return null
 
-      if (language === 'html') {
-        const { documentationAt } = await import('./languages/html')
-
-        result = documentationAt(content, offset, context)
-      }
-
+      const result = languageHandler.documentationAt(content, offset, context)
       if (result) {
         const documentation = await this.documentationFor(result.value)
 
@@ -494,13 +491,10 @@ export function createIntellisense(
       return null
     },
     async collectColors(content, language) {
-      if (language === 'html') {
-        const { collectColors } = await import('./languages/html')
+      const languageHandler = await languageHandlers[language]?.()
+      if (!languageHandler) return []
 
-        return collectColors(content, context)
-      }
-
-      return []
+      return languageHandler.collectColors(content, context)
     },
     async validate(content, language) {
       if (language === 'html') {

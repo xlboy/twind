@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     // Search under node_modules for non-relative imports.
@@ -16,6 +16,7 @@
     "noErrorTruncation": true,
     // Enforce using `import type` instead of `import` for Types
     "importsNotUsedAsValues": "error",
+    "ignoreDeprecations": "5.0",
     "allowJs": true,
     // Generate inline sourcemaps
     "sourceMap": false,
