@@ -5,8 +5,8 @@
   "private": true,
   "type": "module",
   "homepage": "https://twind.style",
-  "bugs": "https://github.com/tw-in-js/twind/issues",
-  "repository": "github:tw-in-js/twind",
+  "bugs": "https://github.com/xlboy/twind/issues",
+  "repository": "github:xlboy/twind",
   "keywords": [
     "twind",
     "tw-in-js",

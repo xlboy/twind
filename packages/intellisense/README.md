@@ -1,9 +1,9 @@
-# @twind/intellisense [![MIT License](https://flat.badgen.net/github/license/tw-in-js/twind)](https://github.com/tw-in-js/twind/blob/main/LICENSE) [![Latest Release](https://flat.badgen.net/npm/v/@twind/intellisense?icon=npm&label&cache=10800&color=blue)](https://www.npmjs.com/package/@twind/intellisense) [![Github](https://flat.badgen.net/badge/icon/tw-in-js%2Ftwind%23intellisense?icon=github&label)](https://github.com/tw-in-js/twind/tree/main/packages/intellisense)
+# @phoenix-twind/intellisense [![MIT License](https://flat.badgen.net/github/license/tw-in-js/twind)](https://github.com/tw-in-js/twind/blob/main/LICENSE) [![Latest Release](https://flat.badgen.net/npm/v/@phoenix-twind/intellisense?icon=npm&label&cache=10800&color=blue)](https://www.npmjs.com/package/@phoenix-twind/intellisense) [![Github](https://flat.badgen.net/badge/icon/xlboy%2Ftwind%23intellisense?icon=github&label)](https://github.com/xlboy/twind/tree/main/packages/intellisense)
 
 IntelliSense utilities for [twind](https://twind.style)
 
 - 📖 Study [the documentation](https://twind.style/intellisense)
-- 📓 Consult [the API reference](https://twind.style/packages/@twind/intellisense)
+- 📓 Consult [the API reference](https://twind.style/packages/@phoenix-twind/intellisense)
 - 📜 Read [the changelog](https://github.com/tw-in-js/twind/tree/main/packages/intellisense/CHANGELOG.md)
 
 ## 📖 Documentation
