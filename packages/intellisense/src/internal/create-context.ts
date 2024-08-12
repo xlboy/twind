@@ -80,9 +80,9 @@ export function createIntellisenseContext(
     if (completion.type === 'class' && isIgnored(completion.name)) return
 
     if (
-      target.has(completion.name) &&
-      JSON.stringify(target.get(completion.name), ['type', 'name']) !==
-        JSON.stringify(completion, ['type', 'name'])
+      target.get(completion.name) &&
+      JSON.stringify(target.get(completion.name), ['type', 'name', 'source']) ===
+        JSON.stringify(completion, ['type', 'name', 'source'])
     ) {
       console.warn(`Duplicate ${completion.type}: ${JSON.stringify(completion.name)}`)
     } else {
