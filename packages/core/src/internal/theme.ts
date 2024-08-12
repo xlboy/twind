@@ -32,7 +32,7 @@ export function makeThemeFunction<Theme extends BaseTheme = BaseTheme>({
 
       for (const key in screens) {
         if (typeof screens[key] == 'string') {
-          breakpoints['screen-' + key] = screens[key] as string
+          breakpoints['screen-' + key] = screens[key]
         }
       }
 
