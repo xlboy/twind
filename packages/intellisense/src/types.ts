@@ -138,6 +138,4 @@ export interface IntellisenseOptions {
     */
     readonly maxSize: number
   }
-
-  mdnOrigin?: string
 }

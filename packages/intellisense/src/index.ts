@@ -28,6 +28,8 @@ import { spacify } from './internal/spacify'
 import { compareSuggestions } from './internal/compare-suggestion'
 import { Boundary } from './internal/types'
 
+import MDN_CSS_INFO from './internal/mdn-css-info.json'
+
 export * from './types'
 
 const MDN = 'https://developer.mozilla.org'
@@ -58,7 +60,6 @@ export function createIntellisense(
   })
 
   const context = createIntellisenseContext(config, options)
-  const { mdnOrigin = MDN } = options
 
   // Precache empty input as it is the most common and take a while
   suggestionCache.set('', context.suggestions.map(toSuggestion))
@@ -100,15 +101,6 @@ export function createIntellisense(
       color: suggestion.color,
     }
   }
-
-  let mdnIndexPromise: Promise<{ title: string; url: string }[]> | null = null
-  const mdnCache = new QuickLRU<
-    string,
-    Promise<{ title: string; summary?: string | undefined; browserCompat?: string[] | undefined }>
-  >({
-    maxSize: 1000,
-    ...options.cache,
-  })
 
   const languageHandlers = {
     html: () => import('./languages/html'),
@@ -303,116 +295,54 @@ export function createIntellisense(
 
       const css = cssbeautify(context.generateCSS(token), { autosemicolon: true, indent: '  ' })
 
-      // { title: "display", url: "/en-US/docs/Web/CSS/display" },
-      // { title: "@media", url: "/en-US/docs/Web/CSS/@media" },
-      // { title: "prefers-contrast", url: "/en-US/docs/Web/CSS/@media/prefers-contrast" }
-      // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/index.json
-      // {doc: { summary: "", "browserCompat": [ "css.properties.display" ] },
-      // https://caniuse.com/mdn-css_properties_display
-      const mdnIndex = await (mdnIndexPromise ||= (async () => {
-        try {
-          const response = await fetch(`${mdnOrigin}/en-US/search-index.json`)
+      const cssFeatureLinks = Array.from(
+        css.matchAll(
+          /\\[!"'`*+.,;:\\/<=>?@#$%&^|~()[\]{}]|(@\S+|:?:[a-z-]+(?:\([^)]+\))?|[a-z-]+:)/g,
+        ),
+        (match) => {
+          const candidate = match[1]
+          if (candidate && !candidate.startsWith('-')) {
+            // color: transparent
+            // @media (prefers-contrast:) -> @media, prefers-contrast
+            // &:hover -> :hover, hover
+            // ::backdrop -> ::backdrop, backdrop
+            // :nth-child(odd) -> :nth-child(odd), :nth-child(), :nth-child, nth-child
+            const candidates = new Set([
+              candidate,
+              // :nth-child(odd) -> :nth-child()
+              candidate.replace(/\(.+?\)/g, '()'),
+              // :nth-child(odd) -> :nth-child
+              candidate.replace(/\(.*?\)/g, ''),
+              // :nth-child(odd) -> nth-child
+              // ::backdrop -> backdrop
+              candidate.replace(/\(.*?\)|[^a-z-]+/gi, ''),
+            ])
 
-          if (response.ok && response.status === 200) {
-            const index: { title: string; url: string }[] = await response.json()
-
-            return index.filter(({ url }) => url.includes('/CSS/'))
+            for (const candidate of candidates) {
+              const found = MDN_CSS_INFO[candidate as never] as typeof MDN_CSS_INFO['x'] | undefined
+              if (found) {
+                return { match, mdn: { ...found, title: candidate } }
+              }
+            }
           }
-        } catch (error) {
-          console.warn('Failed to fetch MDN index')
-        }
+        },
+      )
+        .filter(
+          <T>(result: T, index: number, list: T[]): result is NonNullable<T> =>
+            result && list.indexOf(result) === index,
+        )
+        .map((result) => {
+          const { url, title, browserCompat } = result.mdn
+          const links = [
+            `[Documentation](${MDN}${url})`,
+            browserCompat?.[0] &&
+              `[Browser Support](https://caniuse.com/mdn-${browserCompat[0].replace(/\./g, '_')})`,
+          ]
+            .filter(Boolean)
+            .join(' • ')
 
-        return []
-      })())
-
-      const cssFeatureLinks =
-        mdnIndex.length &&
-        (await Promise.all(
-          Array.from(
-            css.matchAll(
-              /\\[!"'`*+.,;:\\/<=>?@#$%&^|~()[\]{}]|(@\S+|:?:[a-z-]+(?:\([^)]+\))?|[a-z-]+:)/g,
-            ),
-            (match) => {
-              const candidate = match[1]
-              if (candidate && !candidate.startsWith('-')) {
-                // color: transparent
-                // @media (prefers-contrast:) -> @media, prefers-contrast
-                // &:hover -> :hover, hover
-                // ::backdrop -> ::backdrop, backdrop
-                // :nth-child(odd) -> :nth-child(odd), :nth-child(), :nth-child, nth-child
-                const candidates = new Set([
-                  candidate,
-                  // :nth-child(odd) -> :nth-child()
-                  candidate.replace(/\(.+?\)/g, '()'),
-                  // :nth-child(odd) -> :nth-child
-                  candidate.replace(/\(.*?\)/g, ''),
-                  // :nth-child(odd) -> nth-child
-                  // ::backdrop -> backdrop
-                  candidate.replace(/\(.*?\)|[^a-z-]+/gi, ''),
-                ])
-
-                for (const candidate of candidates) {
-                  const found = mdnIndex.find(({ title }) => title === candidate)
-                  if (found) {
-                    return { match, mdn: found }
-                  }
-                }
-              }
-            },
-          )
-            .filter(
-              <T>(result: T, index: number, list: T[]): result is NonNullable<T> =>
-                result && list.indexOf(result) === index,
-            )
-            .map(async (result) => {
-              let cached = mdnCache.get(result.mdn.url)
-
-              if (!cached) {
-                mdnCache.set(
-                  result.mdn.url,
-                  (cached = (async () => {
-                    try {
-                      const response = await fetch(`${mdnOrigin}${result.mdn.url}/index.json`)
-
-                      // http://www.whateverorigin.org/get?url=https://developer.mozilla.org/en-US/search-index.json
-                      // http://www.whateverorigin.org/get?url=https%3A%2F%2Fdeveloper.mozilla.org%2Fen-US%2Fsearch-index.json
-                      // https://cors-anywhere.herokuapp.com/https://developer.mozilla.org/en-US/search-index.json
-                      // https://mdn-twind-run.sastan.workers.dev/en-US/search-index.json
-                      if (response.ok && response.status === 200) {
-                        const index: {
-                          doc: { title: string; summary?: string; browserCompat?: string[] }
-                        } = await response.json()
-
-                        return {
-                          title: index.doc.title,
-                          summary: index.doc.summary,
-                          browserCompat: index.doc.browserCompat,
-                        }
-                      }
-                    } catch (error) {
-                      console.warn('Failed to fetch MDN index')
-                    }
-
-                    return { title: result.mdn.title }
-                  })()),
-                )
-              }
-
-              const { title, browserCompat } = await cached
-              const links = [
-                `[Documentation](${MDN}${result.mdn.url})`,
-                browserCompat?.[0] &&
-                  `[Browser Support](https://caniuse.com/mdn-${browserCompat[0].replace(
-                    /\./g,
-                    '_',
-                  )})`,
-              ]
-                .filter(Boolean)
-                .join(' • ')
-
-              return `⁃ \`${title}\` (${links})`
-            }),
-        ))
+          return `⁃ \`${title}\` (${links})`
+        })
 
       let theme: any
       const sources: string[] = []
