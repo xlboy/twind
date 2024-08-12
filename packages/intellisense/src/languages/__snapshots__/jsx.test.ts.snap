@@ -1,0 +1,286 @@
+// Vitest Snapshot v1
+
+exports[`extractIntactBoundary > attributes 1`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 25,
+    "start": 19,
+  },
+  "code": "<div className
+ = \\"✍🏻text-sm\\">;",
+  "index": 19,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 25,
+    "start": 19,
+  },
+  "code": "<div className
+ = \\"text-✍🏻sm\\">;",
+  "index": 24,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 3`] = `
+{
+  "boundary": {
+    "content": "text-sm ",
+    "end": 26,
+    "start": 19,
+  },
+  "code": "<div className
+ = \\"text-sm ✍🏻\\">;",
+  "index": 27,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 4`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 16,
+    "start": 16,
+  },
+  "code": "<div className=\\"✍🏻\\">",
+  "index": 16,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 5`] = `
+{
+  "boundary": null,
+  "code": "<div className=✍🏻\\"\\">",
+  "index": 15,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 6`] = `
+{
+  "boundary": null,
+  "code": "<div className=\\"\\"✍🏻>",
+  "index": 17,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 7`] = `
+{
+  "boundary": null,
+  "code": "<div className=✍🏻\\"text\\">",
+  "index": 15,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 8`] = `
+{
+  "boundary": {
+    "content": "bg-red",
+    "end": 23,
+    "start": 18,
+  },
+  "code": "<div className = '✍🏻bg-red'>",
+  "index": 18,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 9`] = `
+{
+  "boundary": {
+    "content": "text-1",
+    "end": 24,
+    "start": 19,
+  },
+  "code": "<div className = {'text-1✍🏻'}>",
+  "index": 25,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 10`] = `
+{
+  "boundary": {
+    "content": "font-bold ",
+    "end": 40,
+    "start": 31,
+  },
+  "code": "<div className = {'text-1 ' + 'font-bold ✍🏻'}>",
+  "index": 41,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 11`] = `
+{
+  "boundary": null,
+  "code": "<div className = {'text-1 ' + 'font-bold'✍🏻}>",
+  "index": 41,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 12`] = `
+{
+  "boundary": null,
+  "code": "<div className = {'text-1 ' + 'font-bold'}✍🏻>",
+  "index": 42,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 1`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tw\`✍🏻text-sm\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tx\`text-✍🏻sm\`;",
+  "index": 8,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 3`] = `
+{
+  "boundary": null,
+  "code": "tx✍🏻\`text-sm\`;",
+  "index": 2,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 4`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 3,
+    "start": 3,
+  },
+  "code": "tx\`✍🏻\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 5`] = `
+{
+  "boundary": null,
+  "code": "tx\`\`✍🏻;",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 6`] = `
+{
+  "boundary": {
+    "content": "text-1 font-bold ",
+    "end": 19,
+    "start": 3,
+  },
+  "code": "tx\`text-1 font-bold ✍🏻\`;",
+  "index": 20,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 7`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 4,
+    "start": 4,
+  },
+  "code": "tw('✍🏻');",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 8`] = `
+{
+  "boundary": null,
+  "code": "tw(''✍🏻);",
+  "index": 5,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 9`] = `
+{
+  "boundary": {
+    "content": "text-red ",
+    "end": 12,
+    "start": 4,
+  },
+  "code": "tx('text-red ✍🏻');",
+  "index": 13,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 10`] = `
+{
+  "boundary": {
+    "content": "text-red 
+ bg-none ",
+    "end": 22,
+    "start": 4,
+  },
+  "code": "tx(\`text-red 
+ bg-none ✍🏻\`);",
+  "index": 23,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 11`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 26,
+    "start": 26,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 12`] = `
+{
+  "boundary": {
+    "content": " center",
+    "end": 32,
+    "start": 26,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻 center');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 13`] = `
+{
+  "boundary": {
+    "content": "red ",
+    "end": 48,
+    "start": 45,
+  },
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red ✍🏻\\"]);",
+  "index": 49,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 14`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red\\"✍🏻]);",
+  "index": 49,
+}
+`;

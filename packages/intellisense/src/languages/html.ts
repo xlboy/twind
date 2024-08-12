@@ -12,6 +12,7 @@ import { toClassName } from '../../../core/src/internal/to-class-name'
 
 import { editabelColorRe, parseColor } from '../internal/color'
 import { adjustRuleLocation } from '../internal/adjust-rule-location'
+import { extractClassBoundaryAtOffset } from '../internal/class-extract-utils'
 
 export function documentationAt(
   content: string,
@@ -292,36 +293,21 @@ export function validate(
   return diagnostics
 }
 
-export function extractBoundary(content: string, position: number): Boundary | null {
-  return (
-    find(`class="`, /[^\\]"/) ||
-    find(`class='`, /[^\\]'/) ||
-    find(`class=`, /[\s"'`=;>]/) ||
-    // svelte class toggle
-    // 'class:...',
-    find(`class:`, /[\s"'/=]/)
-  )
+export function extractIntactBoundary(
+  content: string,
+  offset: number,
+  options?: { prefixes?: Array<string | RegExp> },
+): Boundary | null {
+  const defaultPrefixes = [
+    // class='
+    /class\s*=\s*(?=['"])/,
+    // tw( tx`
+    /t[wx]\s*(?=[`(])/,
+  ]
 
-  function find(search: string, invalid: RegExp, before = /\s/): Boundary | null {
-    const startIndex = content.lastIndexOf(search, position)
+  const intactBoundary = extractClassBoundaryAtOffset(content, offset, 'jsx', {
+    prefixes: [...defaultPrefixes, ...(options?.prefixes || [])],
+  })
 
-    // found and the char before is a white space
-    if (startIndex !== -1 && before.test(content[startIndex - 1])) {
-      const boundary = content.slice(startIndex + search.length, position)
-
-      // maybe an expression like class="{...}"
-      // TODO: for now ignore expression
-      if (/{/.test(boundary[0])) {
-        return null
-      }
-
-      if (invalid.test(boundary)) {
-        return null
-      }
-
-      return { start: startIndex + search.length, end: position, content: boundary }
-    }
-
-    return null
-  }
+  return intactBoundary
 }
