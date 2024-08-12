@@ -51,7 +51,8 @@
     }
   },
   "scripts": {
-    "build": "distilt"
+    "build": "distilt",
+    "update-css-mdn-json": "tsx ./scripts/update-css-mdn-json.ts"
   },
   "publishConfig": {
     "access": "public",
