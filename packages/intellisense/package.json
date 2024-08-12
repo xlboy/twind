@@ -38,6 +38,7 @@
     "@types/css-tree": "^2.0.0",
     "@types/cssbeautify": "^0.3.2",
     "@types/showdown": "^2.0.0",
+    "tsx": "^4.17.0",
     "typescript": "^5.5.3"
   },
   "peerDependencies": {
@@ -50,7 +51,8 @@
     }
   },
   "scripts": {
-    "build": "distilt"
+    "build": "distilt",
+    "update-css-mdn-json": "tsx ./scripts/update-css-mdn-json.ts"
   },
   "publishConfig": {
     "access": "public",
