@@ -464,9 +464,9 @@ export function createIntellisense(
           css && '```css\n' + css + '\n```',
           cssFeatureLinks &&
             cssFeatureLinks.length &&
-            `### CSS Features\n\n${cssFeatureLinks.join('<br>')}\n`,
+            `### CSS Features\n\n${cssFeatureLinks.join('\n\n')}\n`,
           theme && '### Theme\n\n```json\n' + JSON.stringify(theme, null, 2) + '\n```',
-          sources.length && `### Source\n\n${sources.join('<br>')}\n`,
+          sources.length && `### Source\n\n${sources.join('\n\n')}\n`,
         ]
           .filter(Boolean)
           .join('\n\n') || null
