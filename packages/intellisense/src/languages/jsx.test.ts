@@ -60,23 +60,3 @@ describe('extractIntactBoundary', () => {
     }
   })
 })
-
-test.only('wcc', () => {
-  const code = `
-const { tw } = require("@twind/core");
-
-const jsx = <>
-    <div className="text-9xl max-h-[5px]" />
-    <div class="text-(center opacity-20) text-(left right hover:blue-100)" />
-    <div className={tw\`bg-red-50\`} />
-</>
-`
-
-  const context = createIntellisenseContext(
-    defineConfig({
-      presets: [presetTailtwind() as any],
-    }),
-  )
-  const result = collectColors(code, context)
-  console.log('result', result)
-})

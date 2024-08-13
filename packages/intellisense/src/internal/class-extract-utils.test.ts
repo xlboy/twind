@@ -24,7 +24,7 @@ test('_findLastRegexBeforeIndex', () => {
   })
 })
 
-test.only('extractAllClasses', () => {
+test('extractAllClasses', () => {
   const codes = [
     {
       code: `
