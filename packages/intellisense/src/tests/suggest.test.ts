@@ -2,7 +2,7 @@ import { test, expect, beforeAll } from 'vitest'
 
 import presetTailwind, { TailwindTheme } from '@twind/preset-tailwind'
 
-import { Intellisense, createIntellisense, Suggestion } from '.'
+import { Intellisense, createIntellisense, Suggestion } from '..'
 
 let intellisense: Intellisense<TailwindTheme>
 
@@ -16,7 +16,7 @@ const $ = (suggestions: Promise<Suggestion[]>) =>
   suggestions.then((suggestions) => suggestions.map(({ value }) => value))
 
 test('suggest with empty input', async () => {
-  await expect(intellisense.suggest('')).resolves.toHaveLength(14733)
+  await expect(intellisense.suggest('')).resolves.toHaveLength(14725)
 })
 
 test('suggest with single char input', async () => {

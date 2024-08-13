@@ -79,50 +79,52 @@ export function createIntellisenseContext(
   ) => {
     if (completion.type === 'class' && isIgnored(completion.name)) return
 
-    if (
-      target.has(completion.name) &&
-      JSON.stringify(target.get(completion.name), ['type', 'name']) !==
-        JSON.stringify(completion, ['type', 'name'])
-    ) {
+    const isDuplicate =
+      target.get(completion.name) &&
+      JSON.stringify(target.get(completion.name), ['type', 'name', 'source']) ===
+        JSON.stringify(completion, ['type', 'name', 'source'])
+    if (isDuplicate) {
       console.warn(`Duplicate ${completion.type}: ${JSON.stringify(completion.name)}`)
-    } else {
-      completion.value ||= completion.name
-      completion.filter ||= spacify(completion.value)
-      completion.description ||= ''
+      suggestions.splice(suggestions.indexOf(target.get(completion.name) as T), 1)
+      target.delete(completion.name)
+    }
 
-      target.set(completion.name, completion as T)
-      suggestions.push(completion as T)
+    completion.value ||= completion.name
+    completion.filter ||= spacify(completion.value)
+    completion.description ||= ''
 
-      if (modifiers && modifiers.length) {
-        suggestions.push({
-          ...(completion as T),
-          name: completion.name + '/',
-          value: completion.value + '/',
-          filter: spacify(completion.value + '/'),
-          description: '',
+    target.set(completion.name, completion as T)
+    suggestions.push(completion as T)
+
+    if (modifiers && modifiers.length) {
+      suggestions.push({
+        ...(completion as T),
+        name: completion.name + '/',
+        value: completion.value + '/',
+        filter: spacify(completion.value + '/'),
+        description: '',
+      })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      ;(completion as any).modifiers = modifiers
+        .map(({ modifier, theme, color, label }, position) => ({
+          ...(completion as Omit<T, 'modifiers'>),
+          position,
+          name: `${completion.name}/${modifier}`,
+          value: `${completion.value}/${modifier}`,
+          filter: spacify(modifier),
+          description: label || '',
+          theme,
+          color: color && parseColor(color) ? color : undefined,
+        }))
+        .filter((suggestion) => {
+          if (completion.type === 'class' && isIgnored(completion.name)) {
+            return false
+          }
+
+          target.set(suggestion.name, suggestion as T)
+
+          return true
         })
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(completion as any).modifiers = modifiers
-          .map(({ modifier, theme, color, label }, position) => ({
-            ...(completion as Omit<T, 'modifiers'>),
-            position,
-            name: `${completion.name}/${modifier}`,
-            value: `${completion.value}/${modifier}`,
-            filter: spacify(modifier),
-            description: label || '',
-            theme,
-            color: color && parseColor(color) ? color : undefined,
-          }))
-          .filter((suggestion) => {
-            if (completion.type === 'class' && isIgnored(completion.name)) {
-              return false
-            }
-
-            target.set(suggestion.name, suggestion as T)
-
-            return true
-          })
-      }
     }
   }
 

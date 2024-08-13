@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { _findLastRegexBeforeIndex, extractAllClasses } from './class-extract-utils'
-import { generateCode } from './test-utils'
+import { generateCode } from '../tests/test-utils'
 
 // Please refer to the `languages/*.test.ts` files
 // test('extractClassBoundaryAtOffset', () => {})
@@ -24,7 +24,7 @@ test('_findLastRegexBeforeIndex', () => {
   })
 })
 
-test.only('extractAllClasses', () => {
+test('extractAllClasses', () => {
   const codes = [
     {
       code: `

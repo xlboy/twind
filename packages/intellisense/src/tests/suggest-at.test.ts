@@ -2,8 +2,8 @@ import { test, expect, beforeAll } from 'vitest'
 
 import presetTailwind, { TailwindTheme } from '@twind/preset-tailwind'
 
-import { Intellisense, createIntellisense, SuggestionAt, LanguageId } from '.'
-import { generateCode } from './internal/test-utils'
+import { Intellisense, createIntellisense, SuggestionAt, LanguageId } from '..'
+import { generateCode } from './test-utils'
 
 let intellisense: Intellisense<TailwindTheme>
 
@@ -20,25 +20,19 @@ test('suggestAt html', async () => {
         result && { ...result, suggestions: result.suggestions.map(({ value }) => value) },
     )
 
-  await expect(
-    $(intellisense.suggestAt(`<div class="dark:und  text-sm">`, 20, 'html')),
-  ).resolves.toMatchSnapshot()
+  const htmlCodes = [
+    generateCode(`<div class="dark:und✍🏻  text-sm">`),
+    generateCode(`<div class=text-2✍🏻>`),
+    generateCode(`<div class='sm:(text-md font-✍🏻)'>`),
+    generateCode(`<div class="font-(bold ✍🏻)">`),
+    generateCode(`<div class='object-(center ✍🏻)'>`),
+  ]
 
-  await expect(
-    $(intellisense.suggestAt(`<div class=text-2>`, 17, 'html')),
-  ).resolves.toMatchSnapshot()
-
-  await expect(
-    $(intellisense.suggestAt(`<div class='sm:(text-md font-)'>`, 29, 'html')),
-  ).resolves.toMatchSnapshot()
-
-  await expect(
-    $(intellisense.suggestAt(`<div class="font-(bold )">`, 23, 'html')),
-  ).resolves.toMatchSnapshot()
-
-  await expect(
-    $(intellisense.suggestAt(`<div class='object-(center )'>`, 28, 'html')),
-  ).resolves.toMatchSnapshot()
+  for (const code of htmlCodes) {
+    await expect(
+      $(intellisense.suggestAt(code.clean, code.index, 'html')),
+    ).resolves.toMatchSnapshot()
+  }
 })
 
 test('suggestAt js,jsx,ts,tsx', async () => {
