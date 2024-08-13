@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { extractIntactBoundary } from './html'
-import { generateCode } from '../internal/test-utils'
+import { generateCode } from '../tests/test-utils'
 
 describe('extractIntactBoundary', () => {
   test('<html> attributes', () => {

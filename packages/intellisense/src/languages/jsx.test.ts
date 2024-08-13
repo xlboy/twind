@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { extractIntactBoundary, collectColors } from './jsx'
-import { generateCode } from '../internal/test-utils'
+import { generateCode } from '../tests/test-utils'
 import { createIntellisenseContext } from '../internal/create-context'
 import { defineConfig } from '@twind/core'
 import presetTailtwind from '@twind/preset-tailwind'
