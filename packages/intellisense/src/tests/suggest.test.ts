@@ -2,7 +2,7 @@ import { test, expect, beforeAll } from 'vitest'
 
 import presetTailwind, { TailwindTheme } from '@twind/preset-tailwind'
 
-import { Intellisense, createIntellisense, Suggestion } from '.'
+import { Intellisense, createIntellisense, Suggestion } from '..'
 
 let intellisense: Intellisense<TailwindTheme>
 
