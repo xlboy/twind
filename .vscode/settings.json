@@ -8,8 +8,5 @@
     "coverage": true,
     "sites/twind.style/typedoc/data.json": true
   },
-  "npm.exclude": ["**/dist", "**/.svelte-kit/**"],
-  "github.copilot.enable": {
-    "*": true
-  }
+  "npm.exclude": ["**/dist", "**/.svelte-kit/**"]
 }

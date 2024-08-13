@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "../"
+    },
+    {
+      "name": "core",
+      "path": "../packages/core"
+    },
+    {
+      "name": "intellisense",
+      "path": "../packages/intellisense"
+    }
+  ],
+  "settings": {
+    "github.copilot.enable": {
+      "*": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+  }
+}
