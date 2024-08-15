@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { extractIntactBoundary, collectColors } from './jsx'
+import { extractIntactBoundary } from './jsx'
 import { generateCode } from '../tests/test-utils'
-import { createIntellisenseContext } from '../internal/create-context'
-import { defineConfig } from '@twind/core'
-import presetTailtwind from '@twind/preset-tailwind'
 
 describe('extractIntactBoundary', () => {
   test('attributes', () => {
@@ -20,6 +17,18 @@ describe('extractIntactBoundary', () => {
       generateCode(`<div className = {'text-1 ' + 'font-bold ✍🏻'}>`),
       generateCode(`<div className = {'text-1 ' + 'font-bold'✍🏻}>`),
       generateCode(`<div className = {'text-1 ' + 'font-bold'}✍🏻>`),
+      generateCode(`<div className = {'text-1 ' + css\`..✍🏻.\`}>`),
+      generateCode(`<div className = {'text-1 ' + cs\`..✍🏻.\`}>`),
+      generateCode(`<div className = {'text-1 ' + css(\`..✍🏻.\`)}>`),
+      generateCode(`
+       <div className={tw(
+        'flex(& grow-0)',
+        css\`
+          background-color: turquoise;
+          \${tw\`text✍🏻-sm\`}
+        \`
+      )} />
+        `),
     ]
 
     for (const code of codes) {
@@ -43,11 +52,20 @@ describe('extractIntactBoundary', () => {
       generateCode(`tw('✍🏻');`),
       generateCode(`tw(''✍🏻);`),
       generateCode(`tx('text-red ✍🏻');`),
+      generateCode(`tx('text-red', css\`...✍🏻\`);`),
+      generateCode(`tx('text-red', css3\`css3.✍🏻.\`);`),
+      generateCode(`tx('text-red', css\`
+        bakcground: red;
+        \${tw\`te✍🏻xt-lg\`}
+        \`);`),
       generateCode(`tx(\`text-red \n bg-none ✍🏻\`);`),
       generateCode(`tx(\`text-red \n bg-none\`, '✍🏻');`),
       generateCode(`tx(\`text-red \n bg-none\`, '✍🏻 center');`),
       generateCode(`tx(\`text-red \n bg-none\`, 'center', ["dddd", "red ✍🏻"]);`),
       generateCode(`tx(\`text-red \n bg-none\`, 'center', ["dddd", "red"✍🏻]);`),
+      generateCode('apply  `..✍🏻.`'),
+      generateCode('apply.card`......✍🏻.`'),
+      generateCode("apply['card']`[card...]...✍🏻.`"),
     ]
 
     for (const code of codes) {

@@ -307,6 +307,7 @@ export function extractIntactBoundary(
 
   const intactBoundary = extractClassBoundaryAtOffset(content, offset, 'jsx', {
     prefixes: [...defaultPrefixes, ...(options?.prefixes || [])],
+    ignorePrefixes: [],
   })
 
   return intactBoundary

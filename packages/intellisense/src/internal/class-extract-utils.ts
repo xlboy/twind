@@ -68,8 +68,10 @@ export function extractClassBoundaryAtOffset(
   csmLanguageId: CSMLanguageId,
   options: {
     prefixes: Array<string | RegExp>
+    ignorePrefixes: Array<string | RegExp>
   },
 ): Boundary | null {
+  let boundary: Boundary | null = null
   for (const prefix of options.prefixes) {
     const bodyStartIndex = _getBodyStartIndexByPrefix(content, prefix, offset)
     if (bodyStartIndex === -1) continue
@@ -79,18 +81,40 @@ export function extractClassBoundaryAtOffset(
     const targetNode = classNodes.find(({ pos, text }) => {
       const start = bodyStartIndex + pos.s
       const end = bodyStartIndex + pos.e
-      return text === '' ? start <= offset && end >= offset : start <= offset && end >= offset - 1
+      return start <= offset && end >= (text === '' ? offset : offset - 1)
     })
 
     if (targetNode) {
-      const start = bodyStartIndex + targetNode.pos.s
-      const end = bodyStartIndex + targetNode.pos.e
-      return targetNode.text === ''
-        ? { content: '', start, end: start }
-        : { content: targetNode.text, start, end }
+      const ignoredBoundary = extractClassBoundaryAtOffset(
+        body,
+        offset - bodyStartIndex,
+        csmLanguageId,
+        { prefixes: options.ignorePrefixes, ignorePrefixes: [] },
+      )
+      const isIgnored =
+        ignoredBoundary?.start === targetNode.pos.s && ignoredBoundary?.end === targetNode.pos.e
+      if (isIgnored) {
+        boundary = null
+        continue
+      }
+
+      const boundaryStart = bodyStartIndex + targetNode.pos.s
+      const boundaryEnd = bodyStartIndex + targetNode.pos.e
+      const currentBoundary =
+        targetNode.text === ''
+          ? { content: '', start: boundaryStart, end: boundaryStart }
+          : { content: targetNode.text, start: boundaryStart, end: boundaryEnd }
+
+      if (boundary) {
+        if (boundary.start < currentBoundary.start) {
+          boundary = currentBoundary
+        }
+      } else {
+        boundary = currentBoundary
+      }
     }
   }
-  return null
+  return boundary
 }
 
 export function extractAllClasses(
@@ -98,36 +122,54 @@ export function extractAllClasses(
   csmLanguageId: CSMLanguageId,
   options: {
     prefixes: Array<string | RegExp>
+    ignorePrefixes: Array<string | RegExp>
   },
 ): Boundary[] {
-  const classes: Boundary[] = []
-  const existingClasses = new Set</* start-end */ string>()
+  const normalClasses = get(options.prefixes)
+  const ignoredClasses = get(options.ignorePrefixes)
 
-  for (const prefix of options.prefixes) {
-    let offset = content.length
+  const classes = normalClasses.filter(
+    (normalClass) =>
+      !ignoredClasses.some(
+        (ignoredClass) =>
+          normalClass.start === ignoredClass.start && normalClass.end === ignoredClass.end,
+      ),
+  )
 
-    while (offset > 0) {
-      const bodyStartIndex = _getBodyStartIndexByPrefix(content, prefix, offset)
-      if (bodyStartIndex === -1) break
+  return classes
 
-      const body = content.slice(bodyStartIndex)
-      const classNodes = classStringMatcher(body, csmLanguageId)
-      for (let i = classNodes.length - 1; i >= 0; i--) {
-        const { pos, text } = classNodes[i]
-        const start = bodyStartIndex + pos.s
-        const end = bodyStartIndex + pos.e
-        const key = `${start}-${end}`
+  function get(prefixes: Array<string | RegExp>) {
+    const classes: Boundary[] = []
+    const existingClasses = new Set</* start-end */ string>()
 
-        if (existingClasses.has(key)) continue
+    for (const prefix of prefixes) {
+      let offset = content.length
 
-        classes.push(
-          text === '' ? { content: '', start, end: start } : { content: text, start, end },
-        )
-        existingClasses.add(key)
+      while (offset > 0) {
+        const bodyStartIndex = _getBodyStartIndexByPrefix(content, prefix, offset)
+        if (bodyStartIndex === -1) break
+
+        const body = content.slice(bodyStartIndex)
+        const classNodes = classStringMatcher(body, csmLanguageId)
+        for (let i = classNodes.length - 1; i >= 0; i--) {
+          const { pos, text } = classNodes[i]
+          const boundaryStart = bodyStartIndex + pos.s
+          const boundaryEnd = bodyStartIndex + pos.e
+          const boundaryId = `${boundaryStart}-${boundaryEnd}`
+
+          if (existingClasses.has(boundaryId)) continue
+
+          classes.push(
+            text === ''
+              ? { content: '', start: boundaryStart, end: boundaryStart }
+              : { content: text, start: boundaryStart, end: boundaryEnd },
+          )
+          existingClasses.add(boundaryId)
+        }
+
+        offset = bodyStartIndex - 1
       }
-
-      offset = bodyStartIndex - 1
     }
+    return classes.reverse()
   }
-  return classes.reverse()
 }
