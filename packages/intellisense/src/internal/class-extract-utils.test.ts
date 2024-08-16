@@ -32,17 +32,19 @@ test('extractAllClasses', () => {
       <div className="text-9xl max-h-[5px]" />
       <div class="text-(center opacity-20) text-(left right hover:blue-100)" />
       <div className={tw\`center \${true && 'left'}\`} />
+      <div className={tw('center left right', css\`background: red\`)} />
     </>
-
   `,
       matched: [
         'text-9xl max-h-[5px]',
         'text-(center opacity-20) text-(left right hover:blue-100)',
         'center ',
         'left',
+        'center left right',
       ],
       lang: 'jsx',
-      prefix: /class(Name)?\s*=\s*/,
+      prefixes: [/class(Name)?\s*=\s*/],
+      ignorePrefixes: [/css\s*(?=`)/],
     },
     {
       code: `
@@ -60,12 +62,16 @@ test('extractAllClasses', () => {
         'text-(center opacity-20) text-(left) ',
       ],
       lang: 'html',
-      prefix: /class\s*=\s*/,
+      prefixes: [/class\s*=\s*/],
+      ignorePrefixes: [],
     },
   ]
 
-  for (const { code, lang, matched, prefix } of codes) {
-    const result = extractAllClasses(code, lang as any, { prefixes: [prefix] })
+  for (const { code, lang, matched, prefixes, ignorePrefixes } of codes) {
+    const result = extractAllClasses(code, lang as any, {
+      prefixes,
+      ignorePrefixes,
+    })
     result.forEach((v, i) => {
       const text = matched[i]
       expect(v.content).toEqual(text)

@@ -23,13 +23,40 @@ export interface LanguageHandler {
     content: string,
     offset: number,
     { isIgnored }: IntellisenseContext,
+    options?: Partial<ClassExtractionOptions>,
   ): DocumentationAt | null
-  extractIntactBoundary(content: string, position: number): Boundary | null
-  collectColors(content: string, { classes, isIgnored }: IntellisenseContext): ColorInformation[]
+  extractIntactBoundary(
+    content: string,
+    position: number,
+    options?: Partial<ClassExtractionOptions>,
+  ): Boundary | null
+  collectColors(
+    content: string,
+    { classes, isIgnored }: IntellisenseContext,
+    options?: Partial<ClassExtractionOptions>,
+  ): ColorInformation[]
   validate(
     content: string,
     { variants, classes, isIgnored, generateCSS }: IntellisenseContext,
   ): Diagnostics[]
+}
+
+export interface ClassExtractionOptions {
+  /**
+   * @example
+   * ```ts
+   * [/class(Name)?=/, 'class=']
+   * ```
+   */
+  prefixes: Array<string | RegExp>
+
+  /**
+   * @example
+   * ```ts
+   * [/css(?=`|\()/]
+   * ```
+   */
+  ignorePrefixes: Array<string | RegExp>
 }
 
 export interface Intellisense<Theme extends BaseTheme = BaseTheme> {
@@ -138,4 +165,5 @@ export interface IntellisenseOptions {
     */
     readonly maxSize: number
   }
+  languages?: Partial<Record<LanguageId, { classExtraction?: Partial<ClassExtractionOptions> }>>
 }

@@ -214,7 +214,9 @@ export function createIntellisense(
       // TODO: autocomplete for theme(): https://github.com/tailwindlabs/tailwindcss-intellisense/blob/1f1c3fcd7978865aff06fa1f8616c6b6447c1fa1/packages/tailwindcss-language-server/src/language/cssServer.ts#L159
       // ...
       const preOffsetBoundary: Boundary | null = (() => {
-        const intactBoundary = languageHandler.extractIntactBoundary(content, position)
+        const intactBoundary = languageHandler.extractIntactBoundary(content, position, {
+          ...options.languages?.[language]?.classExtraction,
+        })
         if (!intactBoundary) return null
         return {
           content: intactBoundary.content.slice(0, position - intactBoundary.start),
@@ -409,7 +411,9 @@ export function createIntellisense(
       const languageHandler = await languageHandlers[language]?.()
       if (!languageHandler) return null
 
-      const result = languageHandler.documentationAt(content, offset, context)
+      const result = languageHandler.documentationAt(content, offset, context, {
+        ...options.languages?.[language]?.classExtraction,
+      })
       if (result) {
         const documentation = await this.documentationFor(result.value)
 
@@ -424,7 +428,9 @@ export function createIntellisense(
       const languageHandler = await languageHandlers[language]?.()
       if (!languageHandler) return []
 
-      return languageHandler.collectColors(content, context)
+      return languageHandler.collectColors(content, context, {
+        ...options.languages?.[language]?.classExtraction,
+      })
     },
     async validate(content, language) {
       if (language === 'html') {

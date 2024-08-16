@@ -1,9 +1,13 @@
 import type { IntellisenseContext, Boundary } from '../internal/types'
 
 import type { ParsedDevRule } from '@twind/core'
-import type { ColorInformation, Diagnostics, DocumentationAt } from '../types'
+import type {
+  ClassExtractionOptions,
+  ColorInformation,
+  Diagnostics,
+  DocumentationAt,
+} from '../types'
 import { extractAllClasses, extractClassBoundaryAtOffset } from '../internal/class-extract-utils'
-import { classStringMatcher } from 'class-string-matcher'
 
 import { parse } from '@twind/core'
 import { toClassName } from '../../../core/src/internal/to-class-name'
@@ -16,15 +20,25 @@ const defaultClassPrefixes = [
   /class(Name)?\s*=\s*(?=['"{])/,
   // tw( tx`
   /t[wx]\s*(?=`|\()/,
+  // apply` apply()
+  /apply\s*(?=`|\()/,
+  // apply.card` apply.card()
+  /apply\s*\.\s*[^`(]*(?=`|\()/,
+  // apply['card']` apply['card']()
+  /apply\s*\[[^`(]*(?=`|\()/,
 ]
+const defaultIgnorePrefixes = [/css\s*(?=`)/]
 
 export function documentationAt(
   content: string,
   offset: number,
   { isIgnored }: IntellisenseContext,
-  options?: { prefixes?: Array<string | RegExp> },
+  options?: Partial<ClassExtractionOptions>,
 ): DocumentationAt | null {
-  const intactBoundary = extractIntactBoundary(content, offset, { prefixes: options?.prefixes })
+  const intactBoundary = extractIntactBoundary(content, offset, {
+    prefixes: options?.prefixes,
+    ignorePrefixes: options?.ignorePrefixes,
+  })
   if (!intactBoundary) return null
 
   let result: DocumentationAt | null = null
@@ -49,10 +63,11 @@ export function documentationAt(
 export function collectColors(
   content: string,
   { classes, isIgnored }: IntellisenseContext,
-  options?: { prefixes?: Array<string | RegExp> },
+  options?: Partial<ClassExtractionOptions>,
 ): ColorInformation[] {
   const allClasses = extractAllClasses(content, 'jsx', {
     prefixes: [...defaultClassPrefixes, ...(options?.prefixes || [])],
+    ignorePrefixes: [...defaultIgnorePrefixes, ...(options?.ignorePrefixes || [])],
   })
   if (allClasses.length === 0) return []
 
@@ -113,10 +128,11 @@ export function validate(
 export function extractIntactBoundary(
   content: string,
   offset: number,
-  options?: { prefixes?: Array<string | RegExp> },
+  options?: Partial<ClassExtractionOptions>,
 ): Boundary | null {
   const intactBoundary = extractClassBoundaryAtOffset(content, offset, 'jsx', {
     prefixes: [...defaultClassPrefixes, ...(options?.prefixes || [])],
+    ignorePrefixes: [...defaultIgnorePrefixes, ...(options?.ignorePrefixes || [])],
   })
 
   return intactBoundary
