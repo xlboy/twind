@@ -1,7 +1,12 @@
 import type { IntellisenseContext, Boundary } from '../internal/types'
 
 import type { ParsedDevRule } from '@twind/core'
-import type { ColorInformation, Diagnostics, DocumentationAt } from '../types'
+import type {
+  ClassExtractionOptions,
+  ColorInformation,
+  Diagnostics,
+  DocumentationAt,
+} from '../types'
 import { extractAllClasses, extractClassBoundaryAtOffset } from '../internal/class-extract-utils'
 
 import { parse } from '@twind/core'
@@ -28,10 +33,7 @@ export function documentationAt(
   content: string,
   offset: number,
   { isIgnored }: IntellisenseContext,
-  options?: {
-    prefixes?: Array<string | RegExp>
-    ignorePrefixes?: Array<string | RegExp>
-  },
+  options?: Partial<ClassExtractionOptions>,
 ): DocumentationAt | null {
   const intactBoundary = extractIntactBoundary(content, offset, {
     prefixes: options?.prefixes,
@@ -61,10 +63,7 @@ export function documentationAt(
 export function collectColors(
   content: string,
   { classes, isIgnored }: IntellisenseContext,
-  options?: {
-    prefixes?: Array<string | RegExp>
-    ignorePrefixes?: Array<string | RegExp>
-  },
+  options?: Partial<ClassExtractionOptions>,
 ): ColorInformation[] {
   const allClasses = extractAllClasses(content, 'jsx', {
     prefixes: [...defaultClassPrefixes, ...(options?.prefixes || [])],
@@ -129,10 +128,7 @@ export function validate(
 export function extractIntactBoundary(
   content: string,
   offset: number,
-  options?: {
-    prefixes?: Array<string | RegExp>
-    ignorePrefixes?: Array<string | RegExp>
-  },
+  options?: Partial<ClassExtractionOptions>,
 ): Boundary | null {
   const intactBoundary = extractClassBoundaryAtOffset(content, offset, 'jsx', {
     prefixes: [...defaultClassPrefixes, ...(options?.prefixes || [])],

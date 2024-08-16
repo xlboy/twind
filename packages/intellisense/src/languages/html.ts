@@ -1,5 +1,10 @@
 import type { ParsedDevRule } from '@twind/core'
-import type { ColorInformation, Diagnostics, DocumentationAt } from '../types'
+import type {
+  ClassExtractionOptions,
+  ColorInformation,
+  Diagnostics,
+  DocumentationAt,
+} from '../types'
 import type { IntellisenseContext, Boundary } from '../internal/types'
 
 import csstreeParse from 'css-tree/parser'
@@ -296,7 +301,7 @@ export function validate(
 export function extractIntactBoundary(
   content: string,
   offset: number,
-  options?: { prefixes?: Array<string | RegExp> },
+  options?: Partial<Pick<ClassExtractionOptions, 'prefixes'>>,
 ): Boundary | null {
   const defaultPrefixes = [
     // class='

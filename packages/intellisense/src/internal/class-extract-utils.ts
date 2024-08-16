@@ -1,5 +1,6 @@
 import { classStringMatcher, LanguageId as CSMLanguageId } from 'class-string-matcher'
 import { Boundary } from './types'
+import { ClassExtractionOptions } from '../types'
 
 interface MatchResult {
   startIndex: number
@@ -66,10 +67,7 @@ export function extractClassBoundaryAtOffset(
   content: string,
   offset: number,
   csmLanguageId: CSMLanguageId,
-  options: {
-    prefixes: Array<string | RegExp>
-    ignorePrefixes: Array<string | RegExp>
-  },
+  options: ClassExtractionOptions,
 ): Boundary | null {
   let boundary: Boundary | null = null
   for (const prefix of options.prefixes) {
@@ -120,10 +118,7 @@ export function extractClassBoundaryAtOffset(
 export function extractAllClasses(
   content: string,
   csmLanguageId: CSMLanguageId,
-  options: {
-    prefixes: Array<string | RegExp>
-    ignorePrefixes: Array<string | RegExp>
-  },
+  options: ClassExtractionOptions,
 ): Boundary[] {
   const normalClasses = get(options.prefixes)
   const ignoredClasses = get(options.ignorePrefixes)
