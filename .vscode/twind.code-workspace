@@ -11,6 +11,10 @@
     {
       "name": "intellisense",
       "path": "../packages/intellisense"
+    },
+    {
+      "name": "preset-tailwind",
+      "path": "../packages/preset-tailwind"
     }
   ],
   "settings": {
