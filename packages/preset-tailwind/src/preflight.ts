@@ -1,5 +1,6 @@
 /**
  * @module @twind/preset-tailwind/preflight
+ * [tailwindcss preflight](https://github.com/tailwindlabs/tailwindcss/blob/v3.4.10/src/css/preflight.css)
  */
 
 import type { Preflight } from '@twind/core'
@@ -26,8 +27,10 @@ const preflight: Preflight = {
     3. Use a more readable tab size.
     4. Use the user's configured `sans` font-family by default.
     5. Use the user's configured `sans` font-feature-settings by default.
+    6. Use the user's configured `sans` font-variation-settings by default.
+    7. Disable tap highlights on iOS
     */
-  html: {
+  'html,:host': {
     lineHeight: 1.5 /* 1 */,
     WebkitTextSizeAdjust: '100%' /* 2 */,
     MozTabSize: '4' /* 3 */,
@@ -36,6 +39,8 @@ const preflight: Preflight = {
       (baseTheme.fontFamily as Record<string, string>).sans
     })` /* 4 */,
     fontFeatureSettings: 'theme(fontFamily.sans[1].fontFeatureSettings, normal)' /* 5 */,
+    fontVariationSettings: 'theme(fontFamily.sans[1].fontVariationSettings, normal)' /* 6 */,
+    WebkitTapHighlightColor: 'transparent' /* 7 */,
   },
 
   /*
@@ -74,11 +79,13 @@ const preflight: Preflight = {
   /*
     1. Use the user's configured `mono` font family by default.
     2. Use the user's configured `mono` font-feature-settings by default.
-    3. Correct the odd `em` font sizing in all browsers.
+    3. Use the user's configured `mono` font-variation-settings by default.
+    4. Correct the odd `em` font sizing in all browsers.
     */
   'code,kbd,samp,pre': {
     fontFamily: `theme(fontFamily.mono, ${(baseTheme.fontFamily as Record<string, string>).mono})`,
     fontFeatureSettings: 'theme(fontFamily.mono[1].fontFeatureSettings, normal)',
+    fontVariationSettings: 'theme(fontFamily.mono[1].fontVariationSettings, normal)',
     fontSize: '1em',
   },
 
@@ -117,8 +124,12 @@ const preflight: Preflight = {
     */
   'button,input,optgroup,select,textarea': {
     fontFamily: 'inherit' /* 1 */,
+    fontFeatureSettings: 'inherit' /* 1 */,
+    fontVariationSettings: 'inherit' /* 1 */,
     fontSize: '100%' /* 1 */,
+    fontWeight: 'inherit' /* 1 */,
     lineHeight: 'inherit' /* 1 */,
+    letterSpacing: 'inherit' /* 1 */,
     color: 'inherit' /* 1 */,
     margin: '0' /* 2 */,
     padding: '0' /* 3 */,
@@ -133,10 +144,10 @@ const preflight: Preflight = {
     1. Correct the inability to style clickable types in iOS and Safari.
     2. Remove default button styles.
     */
-  "button,[type='button'],[type='reset'],[type='submit']": {
+  "button,input:where([type='button'],[type='reset'],[type='submit'])": {
     WebkitAppearance: 'button' /* 1 */,
     backgroundColor: 'transparent' /* 2 */,
-    backgroundImage: 'none' /* 4 */,
+    backgroundImage: 'none' /* 2 */,
   },
 
   /*
@@ -195,6 +206,10 @@ const preflight: Preflight = {
   fieldset: { margin: '0', padding: '0' },
   legend: { padding: '0' },
   'ol,ul,menu': { listStyle: 'none', margin: '0', padding: '0' },
+  /*
+    Reset default styling for dialogs.
+    */
+  dialog: { padding: '0' },
 
   /*
     Prevent resizing textareas horizontally by default.

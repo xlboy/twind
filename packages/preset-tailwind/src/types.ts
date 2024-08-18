@@ -72,7 +72,10 @@ export type FontSizeValue =
 
 export type FontFamilyValue =
   | MaybeArray<string>
-  | [fontFamily: MaybeArray<string>, configuration: { fontFeatureSettings?: string }]
+  | [
+      fontFamily: MaybeArray<string>,
+      configuration: { fontFeatureSettings?: string; fontVariationSettings?: string },
+    ]
 
 export interface Container {
   screens?: BaseTheme['screens']
@@ -196,4 +199,7 @@ export interface TailwindTheme extends BaseTheme {
   width: Record<string, string>
   willChange: Record<string, string>
   zIndex: Record<string, string>
+  size: Record<string, string>
+  listStyleImage: Record<string, string>
+  lineClamp: Record<string, string>
 }

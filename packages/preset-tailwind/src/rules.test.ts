@@ -134,6 +134,16 @@ const tw = twind(
 
 afterEach(() => tw.clear())
 
+test.skip('debug', () => {
+  const classNames = tw('text([9px] hover:([15px]/[99px]))')
+  // [length:var(--my-var)]
+  // const test = arbitrary('[18px]', undefined)
+  // const classNames = tw('hover:lg:line-clamp-3')
+  // const classNames = tw('cursor-grab hover:(cursor(sm:copy lg:move))')
+  const rules = tw.target
+  console.log(rules)
+})
+
 Object.entries(data)
   .filter(([tokens]) => !tokens.startsWith('//'))
   .map(([tokens, declarations]): [string, string, string[]] => {
@@ -394,7 +404,7 @@ test('arbitrary variants with @apply', () => {
   ])
 })
 
-test('font-size utilities can include a font-weight', () => {
+test('font-size utilities can include a font-weight or line-height', () => {
   const tw = twind(
     {
       presets: [tailwind({ disablePreflight: true })],
@@ -404,13 +414,20 @@ test('font-size utilities can include a font-weight', () => {
           md: ['16px', { lineHeight: '24px', fontWeight: 500 }],
           lg: ['20px', { lineHeight: '28px', fontWeight: 'bold' }],
         },
+        lineHeight: {
+          superMax: '999999px',
+        },
       },
     },
     virtual(),
   )
 
-  assert.strictEqual(tw('text-sm text-md text-lg'), 'text-lg text-md text-sm')
+  assert.strictEqual(
+    tw('text-lg text-md text-sm text-lg/superMax'),
+    'text-lg/superMax text-lg text-md text-sm',
+  )
   assert.deepEqual(tw.target, [
+    '.text-lg\\/superMax{font-size:20px;line-height:999999px;font-weight:bold}',
     '.text-lg{font-size:20px;line-height:28px;font-weight:bold}',
     '.text-md{font-size:16px;line-height:24px;font-weight:500}',
     '.text-sm{font-size:12px}',
@@ -622,22 +639,22 @@ test('auto content is only added to the "real" declaration', () => {
     '::backdrop{--tw-scroll-snap-strictness:proximity}',
     '*,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}',
     "::before,::after{--tw-content:''}",
-    'html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-feature-settings:normal}',
+    'html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}',
     'body{margin:0;line-height:inherit}',
     'hr{height:0;color:inherit;border-top-width:1px}',
     'abbr:where([title]){text-decoration:underline dotted}',
     'h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}',
     'a{color:inherit;text-decoration:inherit}',
     'b,strong{font-weight:bolder}',
-    'code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-feature-settings:normal;font-size:1em}',
+    'code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}',
     'small{font-size:80%}',
     'sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}',
     'sub{bottom:-0.25em}',
     'sup{top:-0.5em}',
     'table{text-indent:0;border-color:inherit;border-collapse:collapse}',
-    'button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:inherit;color:inherit;margin:0;padding:0}',
+    'button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}',
     'button,select{text-transform:none}',
-    "button,[type='button'],[type='reset'],[type='submit']{-webkit-appearance:button;background-color:transparent;background-image:none}",
+    "button,input:where([type='button'],[type='reset'],[type='submit']){-webkit-appearance:button;background-color:transparent;background-image:none}",
     ':-moz-focusring{outline:auto}',
     ':-moz-ui-invalid{box-shadow:none}',
     'progress{vertical-align:baseline}',
@@ -650,6 +667,7 @@ test('auto content is only added to the "real" declaration', () => {
     'fieldset{margin:0;padding:0}',
     'legend{padding:0}',
     'ol,ul,menu{list-style:none;margin:0;padding:0}',
+    'dialog{padding:0}',
     'textarea{resize:vertical}',
     'input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}',
     'button,[role="button"]{cursor:pointer}',

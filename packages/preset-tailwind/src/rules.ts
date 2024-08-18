@@ -29,9 +29,12 @@ import {
   asArray,
   arbitrary,
   withAutocomplete,
+  parseValue,
+  fromTheme,
 } from '@twind/core'
 
-import type { TailwindTheme } from './types'
+import type { FontSizeValue, TailwindTheme } from './types'
+import type { BaseTheme } from './baseTheme'
 
 // indirection wrapper to remove autocomplete functions from production bundles
 function withAutocomplete$(
@@ -131,9 +134,15 @@ const rules: Rule<TailwindTheme>[] = [
 
   // Floats
   '(float)-(left|right|none)',
+  match('float-(start|end)', ({ 1: $1 }) => ({
+    float: `inline-${$1 as 'start' | 'end'}`,
+  })),
 
   // Clear
   '(clear)-(left|right|none|both)',
+  match('clear-(start|end)', ({ 1: $1 }) => ({
+    clear: `inline-${$1 as 'start' | 'end'}`,
+  })),
 
   // Overflow
   '(overflow(?:-[xy])?)-(auto|hidden|clip|visible|scroll)',
@@ -221,23 +230,23 @@ const rules: Rule<TailwindTheme>[] = [
   matchTheme('grid-rows-', 'gridTemplateRows'),
   withAutocomplete$(
     match('grid-rows-(\\d+)', 'gridTemplateRows', gridTemplate),
-    DEV && (() => range({ end: 6 })),
+    DEV && (() => range({ end: 12 })),
   ),
 
   // Grid Row Start / End
   matchTheme('row-', 'gridRow'),
-  withAutocomplete$(match('row-(span)-(\\d+)', 'gridRow', span), DEV && (() => range({ end: 6 }))),
+  withAutocomplete$(match('row-(span)-(\\d+)', 'gridRow', span), DEV && (() => range({ end: 12 }))),
 
   matchTheme('row-start-', 'gridRowStart'),
   withAutocomplete$(
     match('row-start-(auto|\\d+)', 'gridRowStart'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 7 }))),
+    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
   ),
 
   matchTheme('row-end-', 'gridRowEnd'),
   withAutocomplete$(
     match('row-end-(auto|\\d+)', 'gridRowEnd'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 7 }))),
+    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
   ),
 
   // Grid Auto Flow
@@ -283,7 +292,17 @@ const rules: Rule<TailwindTheme>[] = [
     DEV &&
       (({ 1: $1 }) =>
         $1 == 'content'
-          ? ['center', 'start', 'end', 'between', 'around', 'evenly', 'stretch', 'baseline']
+          ? [
+              'normal',
+              'center',
+              'start',
+              'end',
+              'between',
+              'around',
+              'evenly',
+              'stretch',
+              'baseline',
+            ]
           : $1 == 'items'
           ? ['start', 'end', 'center', 'stretch', 'baseline']
           : /* $1 == 'self' */ ['auto', 'start', 'end', 'center', 'stretch', 'baseline']),
@@ -308,9 +327,15 @@ const rules: Rule<TailwindTheme>[] = [
   /* SPACING */
   // Padding
   matchTheme('p([xytrbl])?(?:$|-)', 'padding', edge('padding')),
+  matchTheme('p([se])(?:$|-)', 'padding', ({ 1: $1, _ }) => ({
+    [`padding-inline-${$1 === 's' ? 'start' : 'end'}` as never]: _,
+  })),
 
   // Margin
   matchTheme('-?m([xytrbl])?(?:$|-)', 'margin', edge('margin')),
+  matchTheme('-?m([se])(?:$|-)', 'margin', ({ 1: $1, _ }) => ({
+    [`margin-inline-${$1 === 's' ? 'start' : 'end'}` as never]: _,
+  })),
 
   // Space Between
   matchTheme('-?space-(x|y)(?:$|-)', 'space', ({ 1: $1, _ }) => ({
@@ -364,7 +389,7 @@ const rules: Rule<TailwindTheme>[] = [
 
     return {
       fontFamily: join(_[0]),
-      ...(_[1] as { fontFeatureSettings?: string }),
+      ...(_[1] as { fontFeatureSettings?: string; fontVariationSettings?: string }),
     }
   }),
 
@@ -425,6 +450,10 @@ const rules: Rule<TailwindTheme>[] = [
   matchTheme('list-', 'listStyleType'),
   withAutocomplete$(match('list-', 'listStyleType'), DEV && (() => ['none', 'disc', 'decimal'])),
 
+  // List Style Image
+  matchTheme('list-image-', 'listStyleImage'),
+  withAutocomplete$(match('list-image-', 'listStyleImage'), DEV && (() => ['none'])),
+
   // Placeholder Opacity
   matchTheme('placeholder-opacity-', 'placeholderOpacity', ({ _ }) => ({
     ['&::placeholder']: { '--tw-placeholder-opacity': _ },
@@ -438,6 +467,8 @@ const rules: Rule<TailwindTheme>[] = [
 
   match('text-(ellipsis|clip)', 'textOverflow'),
 
+  match('text-(wrap|nowrap|balance|pretty)', 'textWrap'),
+
   // Text Opacity
   matchTheme('text-opacity-', 'textOpacity', '--tw-text-opacity'),
 
@@ -445,14 +476,50 @@ const rules: Rule<TailwindTheme>[] = [
   matchColor('text-', { property: 'color' }),
 
   // Font Size
-  matchTheme('text-', 'fontSize', ({ _ }) =>
-    typeof _ == 'string'
-      ? { fontSize: _ }
-      : {
-          fontSize: _[0],
-          ...(typeof _[1] == 'string' ? { lineHeight: _[1] } : _[1]),
-        },
-  ),
+  match('text-', (matchResult, ctx) => {
+    const [fontSizeMatch, lineHeightMatch] = parseValue(matchResult.$$) as [
+      string,
+      string | undefined,
+    ]
+
+    const parsedFontSize = fromTheme<TailwindTheme>('fontSize', 'fontSize')(
+      { ...matchResult, $$: fontSizeMatch },
+      ctx,
+    ) as
+      | /* text-999 > 999 (error) */ string
+      | /* text-abc > undefined (error) */ undefined
+      | {
+          fontSize:
+            | /* text-[99px] > 99px */ string
+            | /* text-sm > [0.875rem, 1.25rem | <FontSizeValue>] */ [
+                fontSize: string,
+                /* lineHeight */ string | FontSizeValue,
+              ]
+        }
+    if (!parsedFontSize || typeof parsedFontSize == 'string') return null
+
+    // if lineHeight is not provided, we try to use the fontSize value from the theme
+    if (!lineHeightMatch) {
+      const { fontSize } = parsedFontSize
+      return typeof fontSize === 'string'
+        ? { fontSize }
+        : {
+            fontSize: fontSize[0],
+            ...(typeof fontSize[1] === 'string' ? { lineHeight: fontSize[1] } : fontSize[1]),
+          }
+    }
+
+    const { fontSize } = parsedFontSize
+    const lineHeightVal =
+      ctx.theme('lineHeight', lineHeightMatch) || arbitrary(lineHeightMatch, 'lineHeight', ctx)
+    if (!lineHeightVal) return null
+
+    return {
+      fontSize: typeof fontSize === 'string' ? fontSize : fontSize[0],
+      ...((typeof fontSize[1] !== 'string' && fontSize[1]) as any),
+      lineHeight: lineHeightVal,
+    }
+  }),
 
   // Text Indent
   matchTheme('indent-', 'textIndent'),
@@ -501,7 +568,7 @@ const rules: Rule<TailwindTheme>[] = [
   // Whitespace
   withAutocomplete$(
     match('whitespace-', 'whiteSpace'),
-    DEV && (() => ['normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap']),
+    DEV && (() => ['normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap', 'break-spaces']),
   ),
 
   // Word Break
@@ -641,6 +708,29 @@ const rules: Rule<TailwindTheme>[] = [
       [`border-${position(corners[1])}-radius` as 'border-top-right-radius']: _,
     }
   }),
+  matchTheme('rounded-(s|ss|se|e|ee|es)(?:$|-)', 'borderRadius', ({ 1: $1, _ }) => {
+    switch ($1) {
+      case 's':
+        return {
+          'border-start-start-radius': _,
+          'border-end-start-radius': _,
+        }
+      case 'e':
+        return {
+          'border-start-end-radius': _,
+          'border-end-end-radius': _,
+        }
+      default: {
+        const keys: Record<string, keyof CSSObject> = {
+          ss: 'border-start-start-radius',
+          se: 'border-start-end-radius',
+          ee: 'border-end-end-radius',
+          es: 'border-end-start-radius',
+        }
+        return { [keys[$1] as never]: _ }
+      }
+    }
+  }),
 
   // Border Collapse
   match('border-(collapse|separate)', 'borderCollapse'),
@@ -664,11 +754,16 @@ const rules: Rule<TailwindTheme>[] = [
 
   // Border Color
   matchColor('border-([xytrbl])-', { section: 'borderColor' }, edge('border', 'Color')),
+  matchColor('border-s-', { section: 'borderColor', property: 'borderInlineStartColor' }),
+  matchColor('border-e-', { section: 'borderColor', property: 'borderInlineEndColor' }),
   matchColor('border-'),
 
   // Border Width
   matchTheme('border-([xytrbl])(?:$|-)', 'borderWidth', edge('border', 'Width')),
   matchTheme('border(?:$|-)', 'borderWidth'),
+  matchTheme('border-([se])(?:$|-)', 'borderWidth', ({ 1: $1, _ }) => ({
+    [`border-inline-${$1 === 's' ? 'start' : 'end'}-width` as never]: _,
+  })),
 
   // Divide Opacity
   matchTheme('divide-opacity(?:$|-)', 'divideOpacity', ({ _ }) => ({
@@ -818,6 +913,8 @@ const rules: Rule<TailwindTheme>[] = [
         'saturation',
         'color',
         'luminosity',
+        'plus-darker',
+        'plus-lighter',
       ]),
   ),
 
@@ -993,6 +1090,14 @@ const rules: Rule<TailwindTheme>[] = [
     edge('scroll-margin'),
   ),
 
+  matchTheme<TailwindTheme, 'scrollMargin'>(
+    '-?scroll-m([se])?(?:$|-)',
+    'scroll-margin',
+    ({ 1: $1, _ }) => ({
+      [`scroll-margin-inline-${$1 === 's' ? 'start' : 'end'}` as never]: _,
+    }),
+  ),
+
   // Touch Action
   match('touch-(auto|none|manipulation)', 'touch-action'),
   match('touch-(pinch-zoom|pan-(?:(x|left|right)|(y|up|down)))', ({ 1: $1, 2: $2, 3: $3 }) => ({
@@ -1078,6 +1183,59 @@ const rules: Rule<TailwindTheme>[] = [
     whiteSpace: 'normal',
     clip: 'auto',
   }),
+
+  match('contain', {
+    '--tw-contain-size': ' ',
+    '--tw-contain-layout': ' ',
+    '--tw-contain-paint': ' ',
+    '--tw-contain-style': ' ',
+  }),
+
+  // Line Clamp
+  match('line-clamp-none', {
+    overflow: 'visible',
+    display: 'block',
+    '-webkit-box-orient': 'horizontal',
+    '-webkit-line-clamp': 'none',
+  }),
+  matchTheme('(line-clamp)-', 'lineClamp', ({ _ }) => ({
+    overflow: 'hidden',
+    display: '-webkit-box',
+    '-webkit-box-orient': 'vertical',
+    '-webkit-line-clamp': `${_}`,
+  })),
+
+  // Size
+  matchTheme('(size)-', 'size', ({ _ }) => ({
+    width: `${_}`,
+    height: `${_}`,
+  })),
+
+  // Forced Color Adjust
+  '(forced-color-adjust)-(auto|none)',
+
+  // Contain
+  '(contain)-(none|content|strict)',
+  match('(contain)-(size|inline-size|layout|paint|style)', ({ $$ }) => {
+    return {
+      ...asDefaults({
+        '--tw-contain-size': ' ',
+        '--tw-contain-layout': ' ',
+        '--tw-contain-paint': ' ',
+        '--tw-contain-style': ' ',
+      }),
+      [`--tw-contain-${$$.replace('inline-', '')}`]: $$,
+      '--tw-contain':
+        'var(--tw-contain-size) var(--tw-contain-layout) var(--tw-contain-paint) var(--tw-contain-style)',
+      contain: 'var(--tw-contain)',
+    }
+  }),
+
+  // Caption
+  match('caption-(top|bottom)', 'captionSide'),
+
+  // Hyphens
+  '(hyphens)-(none|manual|auto)',
 ]
 
 export default rules

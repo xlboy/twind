@@ -42,6 +42,7 @@ const variants: Variant<TailwindTheme>[] = [
   ['(first|last|only)', ({ 1: $1 }) => `&:${$1}-child`],
   ['even', '&:nth-child(2n)'],
   ['odd', '&:nth-child(odd)'],
+  ['forced-colors', '@media (forced-colors: active)'],
 
   ['open', '&[open]'],
 
@@ -66,6 +67,7 @@ const variants: Variant<TailwindTheme>[] = [
             ...new Set([
               ...($1 == 'aria'
                 ? [
+                    'busy',
                     'checked',
                     'disabled',
                     'expanded',
@@ -131,8 +133,11 @@ const variants: Variant<TailwindTheme>[] = [
   [
     '(ltr|rtl)',
     withAutocomplete$(
-      ({ 1: $1 }) => `[dir="${$1}"] &`,
-      DEV && (({ 1: $1 }) => [{ prefix: $1, suffix: '', label: `[dir="${$1}"] &` }]),
+      ({ 1: $1 }) => `&:where([dir="${$1}"], [dir="${$1}"] *)`,
+      DEV &&
+        (({ 1: $1 }) => [
+          { prefix: $1, suffix: '', label: `&:where([dir="${$1}"], [dir="${$1}"] *)` },
+        ]),
     ),
   ],
 
