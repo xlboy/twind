@@ -14,7 +14,6 @@ import type {
   ThemeMatchResult,
   ThemeRuleResolver,
   ColorFromThemeValue,
-  AutocompleteProvider,
 } from '@twind/core'
 
 import { DEV } from 'distilt/env'
@@ -28,25 +27,12 @@ import {
   toCSS,
   asArray,
   arbitrary,
-  withAutocomplete,
   parseValue,
   fromTheme,
 } from '@twind/core'
 
 import type { FontSizeValue, TailwindTheme } from './types'
-import type { BaseTheme } from './baseTheme'
-
-// indirection wrapper to remove autocomplete functions from production bundles
-function withAutocomplete$(
-  rule: Rule<TailwindTheme>,
-  autocomplete: AutocompleteProvider<TailwindTheme> | false,
-): Rule<TailwindTheme> {
-  if (DEV) {
-    return withAutocomplete(rule, autocomplete)
-  }
-
-  return rule
-}
+import { getThemeAutocomplete, withAutocomplete$ } from './internal/autocomplete'
 
 const rules: Rule<TailwindTheme>[] = [
   /* arbitrary properties: [paint-order:markers] */
@@ -476,50 +462,62 @@ const rules: Rule<TailwindTheme>[] = [
   matchColor('text-', { property: 'color' }),
 
   // Font Size
-  match('text-', (matchResult, ctx) => {
-    const [fontSizeMatch, lineHeightMatch] = parseValue(matchResult.$$) as [
-      string,
-      string | undefined,
-    ]
+  withAutocomplete$(
+    match('text-', (matchResult, ctx) => {
+      const [fontSizeMatch, lineHeightMatch] = parseValue(matchResult.$$) as [
+        string,
+        string | undefined,
+      ]
 
-    const parsedFontSize = fromTheme<TailwindTheme>('fontSize', 'fontSize')(
-      { ...matchResult, $$: fontSizeMatch },
-      ctx,
-    ) as
-      | /* text-999 > 999 (error) */ string
-      | /* text-abc > undefined (error) */ undefined
-      | {
-          fontSize:
-            | /* text-[99px] > 99px */ string
-            | /* text-sm > [0.875rem, 1.25rem | <FontSizeValue>] */ [
-                fontSize: string,
-                /* lineHeight */ string | FontSizeValue,
-              ]
-        }
-    if (!parsedFontSize || typeof parsedFontSize == 'string') return null
-
-    // if lineHeight is not provided, we try to use the fontSize value from the theme
-    if (!lineHeightMatch) {
-      const { fontSize } = parsedFontSize
-      return typeof fontSize === 'string'
-        ? { fontSize }
-        : {
-            fontSize: fontSize[0],
-            ...(typeof fontSize[1] === 'string' ? { lineHeight: fontSize[1] } : fontSize[1]),
+      const parsedFontSize = fromTheme<TailwindTheme>('fontSize', 'fontSize')(
+        { ...matchResult, $$: fontSizeMatch },
+        ctx,
+      ) as
+        | /* text-999 > 999 (error) */ string
+        | /* text-abc > undefined (error) */ undefined
+        | {
+            fontSize:
+              | /* text-[99px] > 99px */ string
+              | /* text-sm > [0.875rem, 1.25rem | <FontSizeValue>] */ [
+                  fontSize: string,
+                  /* lineHeight */ string | FontSizeValue,
+                ]
           }
-    }
+      if (!parsedFontSize || typeof parsedFontSize == 'string') return null
 
-    const { fontSize } = parsedFontSize
-    const lineHeightVal =
-      ctx.theme('lineHeight', lineHeightMatch) || arbitrary(lineHeightMatch, 'lineHeight', ctx)
-    if (!lineHeightVal) return null
+      // if lineHeight is not provided, we try to use the fontSize value from the theme
+      if (!lineHeightMatch) {
+        const { fontSize } = parsedFontSize
+        return typeof fontSize === 'string'
+          ? { fontSize }
+          : {
+              fontSize: fontSize[0],
+              ...(typeof fontSize[1] === 'string' ? { lineHeight: fontSize[1] } : fontSize[1]),
+            }
+      }
 
-    return {
-      fontSize: typeof fontSize === 'string' ? fontSize : fontSize[0],
-      ...((typeof fontSize[1] !== 'string' && fontSize[1]) as any),
-      lineHeight: lineHeightVal,
-    }
-  }),
+      const { fontSize } = parsedFontSize
+      const lineHeightVal =
+        ctx.theme('lineHeight', lineHeightMatch) || arbitrary(lineHeightMatch, 'lineHeight', ctx)
+
+      return {
+        fontSize: typeof fontSize === 'string' ? fontSize : fontSize[0],
+        ...((typeof fontSize[1] !== 'string' && fontSize[1]) as any),
+        lineHeight: lineHeightVal,
+      }
+    }),
+    DEV &&
+      ((match, ctx) => {
+        const modifiers = getThemeAutocomplete(ctx, 'lineHeight', match.input).map((v) => ({
+          modifier: v.suffix,
+          theme: { section: 'lineHeight', key: v.suffix },
+        }))
+        return getThemeAutocomplete(ctx, 'fontSize', match.input).map((item) => ({
+          ...item,
+          modifiers,
+        }))
+      }),
+  ),
 
   // Text Indent
   matchTheme('indent-', 'textIndent'),
@@ -606,8 +604,8 @@ const rules: Rule<TailwindTheme>[] = [
       opacitySection: 'opacity',
     },
     ({ _ }) => ({
-      '--tw-gradient-from': _.value,
-      '--tw-gradient-to': _.color({ opacityValue: '0' }),
+      '--tw-gradient-from': `${_.value} var(--tw-gradient-from-position)`,
+      '--tw-gradient-to': `${_.color({ opacityValue: '0' })} var(--tw-gradient-to-position)`,
       '--tw-gradient-stops': `var(--tw-gradient-from),var(--tw-gradient-to)`,
     }),
   ),
@@ -620,16 +618,31 @@ const rules: Rule<TailwindTheme>[] = [
       opacitySection: 'opacity',
     },
     ({ _ }) => ({
-      '--tw-gradient-to': _.color({ opacityValue: '0' }),
-      '--tw-gradient-stops': `var(--tw-gradient-from),${_.value},var(--tw-gradient-to)`,
+      '--tw-gradient-to': `${_.color({ opacityValue: '0' })} var(--tw-gradient-to-position)`,
+      '--tw-gradient-stops': `var(--tw-gradient-from),${_.value} var(--tw-gradient-via-position),var(--tw-gradient-to)`,
     }),
   ),
-  matchColor('to-', {
-    section: 'gradientColorStops',
-    property: '--tw-gradient-to',
-    opacityVariable: false,
-    opacitySection: 'opacity',
-  }),
+  matchColor(
+    'to-',
+    {
+      section: 'gradientColorStops',
+      opacityVariable: false,
+      opacitySection: 'opacity',
+    },
+    ({ _ }) => ({
+      '--tw-gradient-to': `${_.value} var(--tw-gradient-to-position)`,
+    }),
+  ),
+
+  // Gradient Color Stop Positions
+  matchTheme('(from|via|to)-', 'gradientColorStopPositions', ({ _, 1: $1 }) => ({
+    ...asDefaults({
+      '--tw-gradient-from-position': ' ',
+      '--tw-gradient-via-position': ' ',
+      '--tw-gradient-to-position': ' ',
+    }),
+    [`--tw-gradient-${$1}-position` as never]: _,
+  })),
 
   /* BACKGROUNDS */
   // Background Attachment

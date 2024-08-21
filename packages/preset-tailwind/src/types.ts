@@ -135,6 +135,7 @@ export interface TailwindTheme extends BaseTheme {
   fontWeight: Record<string, string>
   gap: Record<string, string>
   gradientColorStops: BaseTheme['colors']
+  gradientColorStopPositions: Record<string, string>
   grayscale: Record<string, string>
   gridAutoColumns: Record<string, string>
   gridAutoRows: Record<string, string>
