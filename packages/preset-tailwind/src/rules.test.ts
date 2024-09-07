@@ -135,11 +135,7 @@ const tw = twind(
 afterEach(() => tw.clear())
 
 test.skip('debug', () => {
-  const classNames = tw('text([9px] hover:([15px]/[99px]))')
-  // [length:var(--my-var)]
-  // const test = arbitrary('[18px]', undefined)
-  // const classNames = tw('hover:lg:line-clamp-3')
-  // const classNames = tw('cursor-grab hover:(cursor(sm:copy lg:move))')
+  const classNames = tw('-col-start-1')
   const rules = tw.target
   console.log(rules)
 })

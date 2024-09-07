@@ -200,16 +200,17 @@ const rules: Rule<TailwindTheme>[] = [
     DEV && (() => range({ end: 12 })),
   ),
 
-  matchTheme('col-start-', 'gridColumnStart'),
-  withAutocomplete$(
-    match('col-start-(auto|\\d+)', 'gridColumnStart'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
-  ),
-
+  matchTheme('col-start', 'gridColumnStart'),
   matchTheme('col-end-', 'gridColumnEnd'),
+
+  match('col-start-(auto)', 'gridColumnStart'),
+  match('col-end-(auto)', 'gridColumnEnd'),
+
   withAutocomplete$(
-    match('col-end-(auto|\\d+)', 'gridColumnEnd'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
+    match('-?col-(start|end)-(\\d+)', ({ 1: $1, 2: $2, input }) => ({
+      [`grid-column-${$1}` as never]: input.startsWith('-') ? `-${$2}` : $2,
+    })),
+    DEV && (() => range({ end: 13 })),
   ),
 
   // Grid Template Rows
@@ -224,15 +225,16 @@ const rules: Rule<TailwindTheme>[] = [
   withAutocomplete$(match('row-(span)-(\\d+)', 'gridRow', span), DEV && (() => range({ end: 12 }))),
 
   matchTheme('row-start-', 'gridRowStart'),
-  withAutocomplete$(
-    match('row-start-(auto|\\d+)', 'gridRowStart'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
-  ),
-
   matchTheme('row-end-', 'gridRowEnd'),
+
+  match('row-start-(auto)', 'gridRowStart'),
+  match('row-end-(auto)', 'gridRowEnd'),
+
   withAutocomplete$(
-    match('row-end-(auto|\\d+)', 'gridRowEnd'),
-    DEV && (({ 1: $1 }) => ($1 === 'auto' ? [''] : range({ end: 13 }))),
+    match('-?row-(start|end)-(\\d+)', ({ 1: $1, 2: $2, input }) => ({
+      [`grid-row-${$1}` as never]: input.startsWith('-') ? `-${$2}` : $2,
+    })),
+    DEV && (() => range({ end: 13 })),
   ),
 
   // Grid Auto Flow
@@ -933,7 +935,7 @@ const rules: Rule<TailwindTheme>[] = [
 
   /* FILTERS */
   ...filter(),
-  ...filter('backdrop-'),
+  ...filter('backdrop-', true),
 
   /* TRANSITIONS AND ANIMATION */
   // Transition Property
@@ -1316,7 +1318,7 @@ function edge(
   }
 }
 
-function filter(prefix = ''): Rule<TailwindTheme>[] {
+function filter(prefix = '', generateWebkitPrefix = false): Rule<TailwindTheme>[] {
   const filters = [
     'blur',
     'brightness',
@@ -1343,6 +1345,10 @@ function filter(prefix = ''): Rule<TailwindTheme>[] {
     // add default filter which allows standalone usage
     [`${prefix}filter`]: filters.map((key) => `var(--tw-${prefix}${key})`).join(' '),
   } as CSSObject
+
+  if (generateWebkitPrefix) {
+    defaults[`-webkit-${prefix}filter`] = defaults[`${prefix}filter`]
+  }
 
   return [
     `(${prefix}filter)-(none)`,
