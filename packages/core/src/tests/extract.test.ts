@@ -38,7 +38,7 @@ test('expand class names', () => {
       '.bg-purple-400{--tw-bg-opacity:1;background-color:rgba(192,132,252,var(--tw-bg-opacity))}',
       '.text-5xl{font-size:3rem;line-height:1}',
       '.font-bold{font-weight:700}',
-      '.font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}',
+      '.font-sans{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}',
       '.items-center{align-items:center}',
       '.justify-center{justify-content:center}',
       '.text-center{text-align:center}',
