@@ -17,6 +17,7 @@ export type OmitedSections =
   | 'gridRowEnd'
   | 'gridRowStart'
   | 'listStyleType'
+  | 'listStyleImage'
   | 'objectPosition'
   | 'supports'
   | 'transformOrigin'
@@ -143,6 +144,7 @@ const theme: BaseTheme = {
   },
 
   durations: {
+    0: '0ms',
     75: '75ms',
     100: '100ms',
     150: '150ms',
@@ -202,7 +204,7 @@ const theme: BaseTheme = {
     contain: 'contain',
   },
   blur: {
-    none: 'none',
+    none: '',
     0: '0',
     sm: '4px',
     DEFAULT: '8px',
@@ -368,7 +370,7 @@ const theme: BaseTheme = {
     0: 0,
   },
   fontFamily: {
-    sans: 'ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"'.split(
+    sans: 'ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"'.split(
       ',',
     ),
     serif: 'ui-serif,Georgia,Cambria,"Times New Roman",Times,serif'.split(','),
@@ -404,6 +406,30 @@ const theme: BaseTheme = {
   },
   gap: /* #__PURE__ */ alias('spacing'),
   gradientColorStops: /* #__PURE__ */ alias('colors'),
+  // 0%, 5%, 10%, ... 100%
+  gradientColorStopPositions: {
+    '0%': '0%',
+    '5%': '5%',
+    '10%': '10%',
+    '15%': '15%',
+    '20%': '20%',
+    '25%': '25%',
+    '30%': '30%',
+    '35%': '35%',
+    '40%': '40%',
+    '45%': '45%',
+    '50%': '50%',
+    '55%': '55%',
+    '60%': '60%',
+    '65%': '65%',
+    '70%': '70%',
+    '75%': '75%',
+    '80%': '80%',
+    '85%': '85%',
+    '90%': '90%',
+    '95%': '95%',
+    '100%': '100%',
+  },
   gridAutoColumns: {
     auto: 'auto',
     min: 'min-content',
@@ -441,10 +467,12 @@ const theme: BaseTheme = {
   gridTemplateColumns: {
     // numbers are handled by the plugin: 1 -> repeat(1, minmax(0, 1fr))
     none: 'none',
+    subgrid: 'subgrid',
   },
   gridTemplateRows: {
     // numbers are handled by the plugin: 1 -> repeat(1, minmax(0, 1fr))
     none: 'none',
+    subgrid: 'subgrid',
   },
   height: ({ theme }) => ({
     ...theme('spacing'),
@@ -470,6 +498,9 @@ const theme: BaseTheme = {
     auto: 'auto',
     full: '100%',
     screen: '100vh',
+    svh: '100svh',
+    lvh: '100lvh',
+    dvh: '100dvh',
   }),
   inset: ({ theme }) => ({
     ...theme('spacing'),
@@ -554,17 +585,22 @@ const theme: BaseTheme = {
     ...theme('spacing'),
   }),
   maxHeight: ({ theme }) => ({
+    ...theme('spacing'),
+    none: 'none',
     full: '100%',
     min: 'min-content',
     max: 'max-content',
     fit: 'fit-content',
     screen: '100vh',
+    svh: '100svh',
+    lvh: '100lvh',
+    dvh: '100dvh',
     ...theme('spacing'),
   }),
   maxWidth: ({ theme, breakpoints }) => ({
+    ...theme('spacing'),
     ...breakpoints(theme('screens')),
     none: 'none',
-    0: '0rem',
     xs: '20rem',
     sm: '24rem',
     md: '28rem',
@@ -582,40 +618,36 @@ const theme: BaseTheme = {
     fit: 'fit-content',
     prose: '65ch',
   }),
-  minHeight: {
-    0: '0px',
+  minHeight: ({ theme }) => ({
+    ...theme('spacing'),
     full: '100%',
-    min: 'min-content',
-    max: 'max-content',
-    fit: 'fit-content',
     screen: '100vh',
-  },
-  minWidth: {
-    0: '0px',
+    svh: '100svh',
+    lvh: '100lvh',
+    dvh: '100dvh',
+    min: 'min-content',
+    max: 'max-content',
+    fit: 'fit-content',
+  }),
+  minWidth: ({ theme }) => ({
+    ...theme('spacing'),
     full: '100%',
     min: 'min-content',
     max: 'max-content',
     fit: 'fit-content',
-  },
+  }),
   // objectPosition: {
   //   // The plugins joins all arguments by default
   // },
   opacity: {
-    .../* #__PURE__ */ linear(100, '', 100, 0, 10),
+    .../* #__PURE__ */ linear(100, '', 100, 0, 5),
     // 0: '0',
+    // 5: '0.05',
     // 10: '0.1',
+    // 15: '0.15',
     // 20: '0.2',
-    // 30: '0.3',
-    // 40: '0.4',
-    // 60: '0.6',
-    // 70: '0.7',
-    // 80: '0.8',
-    // 90: '0.9',
+    // ...
     // 100: '1',
-    5: '0.05',
-    25: '0.25',
-    75: '0.75',
-    95: '0.95',
   },
   order: {
     // Handled by plugin
@@ -771,8 +803,8 @@ const theme: BaseTheme = {
     none: 'none',
     all: 'all',
     DEFAULT:
-      'color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter',
-    colors: 'color,background-color,border-color,text-decoration-color,fill,stroke',
+      'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter',
+    colors: 'color, background-color, border-color, text-decoration-color, fill, stroke',
     opacity: 'opacity',
     shadow: 'box-shadow',
     transform: 'transform',
@@ -800,6 +832,9 @@ const theme: BaseTheme = {
     max: 'max-content',
     fit: 'fit-content',
     screen: '100vw',
+    svw: '100svw',
+    lvw: '100lvw',
+    dvw: '100dvw',
     ...theme('flexBasis'),
   }),
   willChange: {
@@ -818,6 +853,52 @@ const theme: BaseTheme = {
     // 40: '40',
     // 50: '50',
     auto: 'auto',
+  },
+  size: ({ theme }) => ({
+    auto: 'auto',
+    ...theme('spacing'),
+    ...ratios(2, 6),
+    // '1/2': '50%',
+    // '1/3': '33.333333%',
+    // '2/3': '66.666667%',
+    // '1/4': '25%',
+    // '2/4': '50%',
+    // '3/4': '75%',
+    // '1/5': '20%',
+    // '2/5': '40%',
+    // '3/5': '60%',
+    // '4/5': '80%',
+    // '1/6': '16.666667%',
+    // '2/6': '33.333333%',
+    // '3/6': '50%',
+    // '4/6': '66.666667%',
+    // '5/6': '83.333333%',
+    ...ratios(12, 12),
+    // '1/12': '8.333333%',
+    // '2/12': '16.666667%',
+    // '3/12': '25%',
+    // '4/12': '33.333333%',
+    // '5/12': '41.666667%',
+    // '6/12': '50%',
+    // '7/12': '58.333333%',
+    // '8/12': '66.666667%',
+    // '9/12': '75%',
+    // '10/12': '83.333333%',
+    // '11/12': '91.666667%',
+    full: '100%',
+    min: 'min-content',
+    max: 'max-content',
+    fit: 'fit-content',
+  }),
+
+  // listStyleImage: {
+  // // Defaults handled by plugin
+  // },
+  lineClamp: {
+    .../* #__PURE__ */ linear(6, '', 1, 1, 1),
+    // 1: '1',
+    // ~
+    // 6: '6',
   },
 }
 

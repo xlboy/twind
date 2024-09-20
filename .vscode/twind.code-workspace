@@ -11,6 +11,14 @@
     {
       "name": "intellisense",
       "path": "../packages/intellisense"
+    },
+    {
+      "name": "preset-tailwind",
+      "path": "../packages/preset-tailwind"
+    },
+    {
+      "name": "twind.run",
+      "path": "../sites/twind.run"
     }
   ],
   "settings": {
