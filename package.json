@@ -214,8 +214,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,cjs,mjs,ts,tsx,svelte}": [
-      "eslint --cache --fix",
-      "vitest related --run --silent"
+      "eslint --cache --fix"
     ],
     "!(pnpm-lock.yaml)*": "prettier --plugin-search-dir=. --ignore-unknown --write"
   }

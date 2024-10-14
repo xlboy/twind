@@ -108,6 +108,8 @@ export function createIntellisense(
     javascriptreact: () => import('./languages/jsx'),
     javascript: () => import('./languages/jsx'),
     typescript: () => import('./languages/jsx'),
+    vue: () => import('./languages/vue'),
+    svelte: () => import('./languages/svelte'),
   } as Partial<Record<LanguageId, () => Promise<LanguageHandler>>>
 
   return {

@@ -1,0 +1,392 @@
+// Vitest Snapshot v1
+
+exports[`extractIntactBoundary > attributes 1`] = `
+{
+  "boundary": {
+    "content": "bg-red",
+    "end": 17,
+    "start": 11,
+  },
+  "code": "<div class:bg-✍🏻red = {true}>",
+  "index": 14,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 21,
+    "start": 15,
+  },
+  "code": "<div class
+ = \\"✍🏻text-sm\\">;",
+  "index": 15,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 3`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 21,
+    "start": 15,
+  },
+  "code": "<div class
+ = \\"text-✍🏻sm\\">;",
+  "index": 20,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 4`] = `
+{
+  "boundary": {
+    "content": "text-sm ",
+    "end": 22,
+    "start": 15,
+  },
+  "code": "<div class
+ = \\"text-sm ✍🏻\\">;",
+  "index": 23,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 5`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 12,
+    "start": 12,
+  },
+  "code": "<div class=\\"✍🏻\\">",
+  "index": 12,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 6`] = `
+{
+  "boundary": null,
+  "code": "<div class=✍🏻\\"\\">",
+  "index": 11,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 7`] = `
+{
+  "boundary": null,
+  "code": "<div class=\\"\\"✍🏻>",
+  "index": 13,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 8`] = `
+{
+  "boundary": null,
+  "code": "<div class=✍🏻\\"text\\">",
+  "index": 11,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 9`] = `
+{
+  "boundary": {
+    "content": "bg-red",
+    "end": 19,
+    "start": 14,
+  },
+  "code": "<div class = '✍🏻bg-red'>",
+  "index": 14,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 10`] = `
+{
+  "boundary": {
+    "content": "text-1",
+    "end": 20,
+    "start": 15,
+  },
+  "code": "<div class = {'text-1✍🏻'}>",
+  "index": 21,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 11`] = `
+{
+  "boundary": {
+    "content": "font-bold ",
+    "end": 36,
+    "start": 27,
+  },
+  "code": "<div class = {'text-1 ' + 'font-bold ✍🏻'}>",
+  "index": 37,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 12`] = `
+{
+  "boundary": null,
+  "code": "<div class = {'text-1 ' + 'font-bold'✍🏻}>",
+  "index": 37,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 13`] = `
+{
+  "boundary": null,
+  "code": "<div class = {'text-1 ' + 'font-bold'}✍🏻>",
+  "index": 38,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 14`] = `
+{
+  "boundary": null,
+  "code": "<div class = {'text-1 ' + css\`..✍🏻.\`}>",
+  "index": 32,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 15`] = `
+{
+  "boundary": {
+    "content": "...",
+    "end": 31,
+    "start": 29,
+  },
+  "code": "<div class = {'text-1 ' + cs\`..✍🏻.\`}>",
+  "index": 31,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 16`] = `
+{
+  "boundary": {
+    "content": "...",
+    "end": 33,
+    "start": 31,
+  },
+  "code": "<div class = {'text-1 ' + css(\`..✍🏻.\`)}>",
+  "index": 33,
+}
+`;
+
+exports[`extractIntactBoundary > attributes 17`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 123,
+    "start": 117,
+  },
+  "code": "
+       <div class={tw(
+        'flex(& grow-0)',
+        css\`
+          background-color: turquoise;
+          \${tw\`text✍🏻-sm\`}
+        \`
+      )} />
+        ",
+  "index": 121,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 1`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tw\`✍🏻text-sm\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 2`] = `
+{
+  "boundary": {
+    "content": "text-sm",
+    "end": 9,
+    "start": 3,
+  },
+  "code": "tx\`text-✍🏻sm\`;",
+  "index": 8,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 3`] = `
+{
+  "boundary": null,
+  "code": "tx✍🏻\`text-sm\`;",
+  "index": 2,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 4`] = `
+{
+  "boundary": {
+    "content": "",
+    "end": 3,
+    "start": 3,
+  },
+  "code": "tx\`✍🏻\`;",
+  "index": 3,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 5`] = `
+{
+  "boundary": null,
+  "code": "tx\`\`✍🏻;",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 6`] = `
+{
+  "boundary": {
+    "content": "text-1 font-bold ",
+    "end": 19,
+    "start": 3,
+  },
+  "code": "tx\`text-1 font-bold ✍🏻\`;",
+  "index": 20,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 7`] = `
+{
+  "boundary": null,
+  "code": "tw('✍🏻');",
+  "index": 4,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 8`] = `
+{
+  "boundary": null,
+  "code": "tw(''✍🏻);",
+  "index": 5,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 9`] = `
+{
+  "boundary": null,
+  "code": "tx('text-red ✍🏻');",
+  "index": 13,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 10`] = `
+{
+  "boundary": null,
+  "code": "tx('text-red', css\`...✍🏻\`);",
+  "index": 22,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 11`] = `
+{
+  "boundary": null,
+  "code": "tx('text-red', css3\`css3.✍🏻.\`);",
+  "index": 25,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 12`] = `
+{
+  "boundary": {
+    "content": "text-lg",
+    "end": 64,
+    "start": 58,
+  },
+  "code": "tx('text-red', css\`
+        bakcground: red;
+        \${tw\`te✍🏻xt-lg\`}
+        \`);",
+  "index": 60,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 13`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none ✍🏻\`);",
+  "index": 23,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 14`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 15`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, '✍🏻 center');",
+  "index": 26,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 16`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red ✍🏻\\"]);",
+  "index": 49,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 17`] = `
+{
+  "boundary": null,
+  "code": "tx(\`text-red 
+ bg-none\`, 'center', [\\"dddd\\", \\"red\\"✍🏻]);",
+  "index": 49,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 18`] = `
+{
+  "boundary": {
+    "content": "...",
+    "end": 10,
+    "start": 8,
+  },
+  "code": "apply  \`..✍🏻.\`",
+  "index": 10,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 19`] = `
+{
+  "boundary": {
+    "content": ".......",
+    "end": 17,
+    "start": 11,
+  },
+  "code": "apply.card\`......✍🏻.\`",
+  "index": 17,
+}
+`;
+
+exports[`extractIntactBoundary > function calls 20`] = `
+{
+  "boundary": {
+    "content": "[card...]....",
+    "end": 26,
+    "start": 14,
+  },
+  "code": "apply['card']\`[card...]...✍🏻.\`",
+  "index": 26,
+}
+`;

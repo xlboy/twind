@@ -1,6 +1,10 @@
-import { classStringMatcher, LanguageId as CSMLanguageId } from 'class-string-matcher'
-import { Boundary } from './types'
-import { ClassExtractionOptions } from '../types'
+import {
+  type ClassNode,
+  classStringMatcher,
+  type LanguageId as CSMLanguageId,
+} from 'class-string-matcher'
+import type { Boundary } from './types'
+import type { ClassExtractionOptions } from '../types'
 
 interface MatchResult {
   startIndex: number
@@ -75,7 +79,16 @@ export function extractClassBoundaryAtOffset(
     if (bodyStartIndex === -1) continue
 
     const body = content.slice(bodyStartIndex)
-    const classNodes = classStringMatcher(body, csmLanguageId)
+
+    let classNodes: ClassNode[] = []
+    if (csmLanguageId === 'vue') {
+      const inDynamicContext =
+        /:class\s*=\s*$/.test(content.slice(0, bodyStartIndex)) || /^[`(]/.test(body)
+      classNodes = classStringMatcher(body, 'vue', { inDynamicContext })
+    } else {
+      classNodes = classStringMatcher(body, csmLanguageId)
+    }
+
     const targetNode = classNodes.find(({ pos, text }) => {
       const start = bodyStartIndex + pos.s
       const end = bodyStartIndex + pos.e
@@ -145,7 +158,14 @@ export function extractAllClasses(
         if (bodyStartIndex === -1) break
 
         const body = content.slice(bodyStartIndex)
-        const classNodes = classStringMatcher(body, csmLanguageId)
+        let classNodes: ClassNode[] = []
+        if (csmLanguageId === 'vue') {
+          const inDynamicContext =
+            /:class\s*=\s*$/.test(content.slice(0, bodyStartIndex)) || /^[`(]/.test(body)
+          classNodes = classStringMatcher(body, 'vue', { inDynamicContext })
+        } else {
+          classNodes = classStringMatcher(body, csmLanguageId)
+        }
         for (let i = classNodes.length - 1; i >= 0; i--) {
           const { pos, text } = classNodes[i]
           const boundaryStart = bodyStartIndex + pos.s
