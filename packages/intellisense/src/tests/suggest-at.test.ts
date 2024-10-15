@@ -1,6 +1,6 @@
 import { test, expect, beforeAll } from 'vitest'
 
-import presetTailwind, { TailwindTheme } from '@twind/preset-tailwind'
+import presetTailwind, { TailwindTheme } from '@phoenix-twind/preset-tailwind'
 
 import { Intellisense, createIntellisense, SuggestionAt, LanguageId } from '..'
 import { generateCode } from './test-utils'

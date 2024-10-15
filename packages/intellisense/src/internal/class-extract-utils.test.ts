@@ -65,6 +65,20 @@ test('extractAllClasses', () => {
       prefixes: [/class\s*=\s*/],
       ignorePrefixes: [],
     },
+    {
+      code: `
+      <div :class="['a', 'b']" />
+      <div v-bind:class="['c', 'd'].join(\`1 2 3 4\`)" />
+      <div class="ee3 ee4" />
+      <div class='ee99 ee88' />
+      tw('ee1 ee2')
+      tx\`test1 test2\`
+      `,
+      matched: ['a', 'b', 'c', 'd', '1 2 3 4', 'ee3 ee4', 'ee99 ee88', 'ee1 ee2', 'test1 test2'],
+      lang: 'vue',
+      prefixes: [/class\s*=\s*/],
+      ignorePrefixes: [],
+    },
   ]
 
   for (const { code, lang, matched, prefixes, ignorePrefixes } of codes) {

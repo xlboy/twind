@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 
-import presetTailwind from '@twind/preset-tailwind'
+import presetTailwind from '@phoenix-twind/preset-tailwind'
 
 import { createIntellisense } from '..'
 
